@@ -6,7 +6,7 @@ def generate_item_memory(characters, dimension, seed=None):
     Random hypervector generation for Item Memory (IM) creation
     
     Parameters:
-        characters (list or str): The alphabet/symbols to encode (e.g., 26 letters + space).
+        characters (list or str): The alphabet/symbols to encode (26 letters + space).
         dimension (int): The length of the hypervectors (D).
         seed (int, optional): Random seed for reproducibility across sweeps.
         

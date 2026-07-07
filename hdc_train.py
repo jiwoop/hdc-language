@@ -75,7 +75,7 @@ def main():
     tasks = [(dimension, n_gram_size, test_data)
              for n_gram_size in n_gram_sizes for dimension in dimensions]
 
-    with Pool(processes=min(4, cpu_count())) as pool:
+    with Pool(processes=cpu_count()) as pool:
         results = pool.map(run_experiment, tasks)
 
     accuracy_by_n = {n_gram_size: {} for n_gram_size in n_gram_sizes}

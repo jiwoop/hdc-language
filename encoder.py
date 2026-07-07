@@ -21,7 +21,6 @@ def encode_text_to_hv(text, item_memory, n_gram_size, dimension):
             ngram_hv = hdc.bind(ngram_hv, permuted_hv)
             
         # Stream straight into the accumulator (Map 1 -> +1, 0 -> -1)
-        # Cast to a signed dtype first: ngram_hv is uint8, so 2*0-1 would wrap to 255.
         bipolar_vector = 2 * ngram_hv.astype(np.int32) - 1
         accumulator += bipolar_vector
         
