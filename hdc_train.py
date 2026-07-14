@@ -32,26 +32,47 @@ def load_test_sentences(language):
     return [clean_text(line) for line in lines if line.strip()]
 
 
-def train_class_vectors(item_memory, n_gram_size, dimension):
+def train_class_vectors(item_memory, n_gram_size, dimension, max_val=None):
     """Encode each language's full training text into one class hypervector."""
     class_hvs = {}
     for language in LANGUAGES:
         text = load_training_text(language)
-        class_hvs[language] = encode_text_to_hv(text, item_memory, n_gram_size, dimension)
+        class_hvs[language] = encode_text_to_hv(text, item_memory, n_gram_size, dimension, max_val)
     return class_hvs
 
 
-def classify(sentence_hv, class_hvs):
+def block_hamming_distance(hv1, hv2, precision, block_size=16):
+    """Hamming distance as a fixed-width N-bit machine would compute it:
+    split into `block_size`-bit blocks, saturate each block's local
+    mismatch count at `precision`, then sum the (possibly-saturated)
+    per-block counts."""
+    mismatches = (hv1 != hv2)
+    num_full_blocks = len(mismatches) // block_size
+    trimmed = mismatches[:num_full_blocks * block_size].reshape(-1, block_size)
+    block_hds = np.count_nonzero(trimmed, axis=1)
+    total = np.clip(block_hds, a_min=None, a_max=precision).sum()
+
+    remainder = mismatches[num_full_blocks * block_size:]
+    if remainder.size:
+        total += min(np.count_nonzero(remainder), precision)
+
+    return total
+
+
+def classify(sentence_hv, class_hvs, precision=None, block_size=16):
     """Nearest class by Hamming distance."""
-    return min(class_hvs, key=lambda language: np.count_nonzero(sentence_hv != class_hvs[language]))
+    if precision is None:
+        return min(class_hvs, key=lambda language: np.count_nonzero(sentence_hv != class_hvs[language]))
+    return min(class_hvs, key=lambda language: block_hamming_distance(
+        sentence_hv, class_hvs[language], precision, block_size))
 
 
-def evaluate(item_memory, class_hvs, n_gram_size, dimension, test_data):
+def evaluate(item_memory, class_hvs, n_gram_size, dimension, test_data, max_val=None, precision=None, block_size=16):
     correct, total = 0, 0
     for true_language, sentences in test_data.items():
         for sentence in sentences:
-            sentence_hv = encode_text_to_hv(sentence, item_memory, n_gram_size, dimension)
-            correct += int(classify(sentence_hv, class_hvs) == true_language)
+            sentence_hv = encode_text_to_hv(sentence, item_memory, n_gram_size, dimension, max_val)
+            correct += int(classify(sentence_hv, class_hvs, precision, block_size) == true_language)
             total += 1
     return correct / total
 
@@ -63,6 +84,27 @@ def run_experiment(args):
     accuracy = evaluate(item_memory, class_hvs, n_gram_size, dimension, test_data)
     print(f"D={dimension:5d} N={n_gram_size} -> accuracy={accuracy:.4f}")
     return dimension, n_gram_size, accuracy
+
+
+def run_precision_experiment(args):
+    """Sweep the accumulator's saturating-counter bound (max_val) at a fixed D, N."""
+    max_val, dimension, n_gram_size, test_data = args
+    item_memory = hdc.generate_item_memory(ALPHABET, dimension, seed=42)
+    class_hvs = train_class_vectors(item_memory, n_gram_size, dimension, max_val)
+    accuracy = evaluate(item_memory, class_hvs, n_gram_size, dimension, test_data, max_val)
+    print(f"max_val={max_val:3d} -> accuracy={accuracy:.4f}")
+    return max_val, accuracy
+
+
+def run_hamming_precision_experiment(args):
+    """Sweep the block-wise saturating Hamming distance precision (bits
+    of local mismatch detectable per 16-bit block) across (D, N) scenarios."""
+    precision, dimension, n_gram_size, test_data = args
+    item_memory = hdc.generate_item_memory(ALPHABET, dimension, seed=42)
+    class_hvs = train_class_vectors(item_memory, n_gram_size, dimension)
+    accuracy = evaluate(item_memory, class_hvs, n_gram_size, dimension, test_data, precision=precision)
+    print(f"D={dimension:5d} N={n_gram_size} precision={precision:3d} -> accuracy={accuracy:.4f}")
+    return precision, dimension, n_gram_size, accuracy
 
 
 def main():
