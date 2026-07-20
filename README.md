@@ -91,3 +91,72 @@ generalized as above), plus the round-2 finer landmark sweep.
 - `--workers` defaults to `SLURM_CPUS_ON_NODE`. Leave it; the script picks the node's core
   count automatically.
 - To add/remove experiment points, edit the grid constants at the top of `run_experiments.py`.
+
+---
+
+# Running the UWaveGestureLibrary sweep (permutation baseline vs. Nystrom+GAK)
+
+A second, independent experiment: gesture classification on UWaveGestureLibrary (8 classes,
+3-axis accelerometer), comparing a multi-channel permutation HDC baseline
+(`permutation_encoder.py`) against a Nystrom + GAK (Global Alignment Kernel) HDC encoder
+(`gak_encoder.py`). Driven by `run_gesture_experiments.py` / `hdc_gesture.slurm`, same
+Pool-over-one-128-core-node shape as the language sweep above.
+
+**New third-party dependency**: this experiment needs `tslearn` (for GAK) in addition to
+`numpy`/`matplotlib` — unlike the language sweep, this repo is no longer numpy+matplotlib-only.
+Install it the same way:
+
+```bash
+module load python3
+pip3 install --user numpy matplotlib tslearn
+```
+
+**Data**: `UWaveGestureLibraryAll/UWaveGestureLibraryAll_{TRAIN,TEST}.ts` stores each gesture
+as X/Y/Z concatenated into one 945-length univariate series. `uwave_data.py` splits each row
+back into genuine `(3 channels, 315 samples)` data before either encoder sees it — confirm this
+directory is present (it's untracked; not part of git history) before running.
+
+**Headline result**: accuracy vs. vector dimension `D`, both methods on one plot
+(`accuracy_vs_dimension_gesture.png`), swept over
+`{64, 128, 256, 512, 1024, 2048, 4096, 8192, 10000}` — the upper end reaches D=10000, the
+standard hypervector width used in binary-HDC time-series literature (record-based/
+spatiotemporal HDC), so the sweep can show where accuracy actually plateaus.
+
+**Secondary result**: Nystrom+GAK accuracy vs. number of landmarks at fixed D=1024
+(`accuracy_vs_num_landmark_gesture.png`) — GAK's own core knob, alongside D.
+
+**Tertiary result**: permutation baseline accuracy vs. `num_levels` (quantization resolution)
+at fixed D=1024 (`accuracy_vs_num_levels_gesture.png`) — a free parameter this task introduces
+that the language task never had (continuous accelerometer values must be quantized into
+discrete levels before the permutation encoder's item-memory lookups apply).
+
+GAK is expensive — empirically ~1.5ms per (example, landmark) pair on this data — and its cost
+is set by the *number of examples and landmarks*, not by `D`. `run_gesture_experiments.py`
+exploits this: for the dimension sweep it computes the GAK kernel matrices once (at a fixed
+landmark count) and reuses them across every `D`, rather than recomputing GAK per `(D,
+landmark)` point. Only the num-landmark sweep pays GAK's cost repeatedly, once per landmark
+count tested.
+
+Smoke test first, same pattern as above:
+
+```bash
+python3 run_gesture_experiments.py --quick --workers 4 --outdir results_gesture_smoketest
+```
+
+Submit the full run:
+
+```bash
+sbatch hdc_gesture.slurm
+```
+
+**Is HDC actually a good fit here?** Worth reading critically, not taking for granted:
+- Permutation encoding needs quantizing continuous accelerometer data into discrete levels —
+  a lossy step with its own free parameter (`num_levels`) that the language task never had.
+- GAK is O(seriesLength²) per pair, and the Nystrom step still needs the full kernel matrix
+  computed *before* any HDC benefit kicks in — this experiment tests whether Nystrom+GAK+HDC
+  preserves GAK's accuracy with cheap Hamming-distance *inference*, not whether HDC makes
+  gesture classification cheap end-to-end the way the language n-gram encoder is cheap to train.
+- The Nystrom map's final `sign()` binarization discards magnitude information that a smooth
+  kernel like GAK relies on more than the spectrum kernel's discrete bag-of-k-mers counts did —
+  if Nystrom+GAK accuracy looks surprisingly low, this binarization step is the first place to
+  look, even though no dedicated ablation isolating it is included in this sweep.
