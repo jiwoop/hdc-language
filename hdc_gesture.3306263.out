@@ -1,0 +1,49 @@
+Job 3306263 starting on c318-004.ls6.tacc.utexas.edu at Mon Jul 20 21:03:58 CDT 2026
+Node has 1 cores
+Running gesture sweep with 96 workers -> results_gesture_3306263/
+Dispatching 19 experiment points over 96 workers...
+[dim_perm] D=64 num_levels=100 -> acc=0.2552 (train 10.9s)
+[dim_perm] D=128 num_levels=100 -> acc=0.3632 (train 10.9s)
+[dim_perm] D=256 num_levels=100 -> acc=0.4269 (train 11.2s)
+[dim_perm] D=512 num_levels=100 -> acc=0.4966 (train 11.8s)
+[levelsweep] D=1024 num_levels=100 -> acc=0.4950 (train 12.2s)
+[dim_perm] D=1024 num_levels=100 -> acc=0.4950 (train 12.2s)
+[levelsweep] D=1024 num_levels=50 -> acc=0.4045 (train 12.3s)
+[levelsweep] D=1024 num_levels=200 -> acc=0.5729 (train 12.2s)
+[levelsweep] D=1024 num_levels=20 -> acc=0.2987 (train 12.3s)
+[dim_perm] D=2048 num_levels=100 -> acc=0.5310 (train 13.3s)
+[dim_perm] D=4096 num_levels=100 -> acc=0.5664 (train 14.9s)
+[dim_perm] D=8192 num_levels=100 -> acc=0.5597 (train 18.1s)
+[dim_perm] D=10000 num_levels=100 -> acc=0.5595 (train 19.6s)
+[nlsweep] D=1024 num_landmark=20 -> acc=0.7814 (kernel 485.0s, train 0.0s)
+[nlsweep] D=1024 num_landmark=40 -> acc=0.8451 (kernel 927.6s, train 0.0s)
+[nlsweep] D=1024 num_landmark=80 -> acc=0.8490 (kernel 1830.5s, train 0.0s)
+[dim_gak] D=64 num_landmark=80 -> acc=0.7638 (train 0.0s)
+[dim_gak] D=128 num_landmark=80 -> acc=0.8110 (train 0.0s)
+[dim_gak] D=256 num_landmark=80 -> acc=0.8386 (train 0.0s)
+[dim_gak] D=512 num_landmark=80 -> acc=0.8453 (train 0.0s)
+[dim_gak] D=1024 num_landmark=80 -> acc=0.8490 (train 0.0s)
+[dim_gak] D=2048 num_landmark=80 -> acc=0.8601 (train 0.0s)
+[dim_gak] D=4096 num_landmark=80 -> acc=0.8596 (train 0.0s)
+[dim_gak] D=8192 num_landmark=80 -> acc=0.8615 (train 0.1s)
+[dim_gak] D=10000 num_landmark=80 -> acc=0.8638 (train 0.1s)
+[nlsweep] D=1024 num_landmark=160 -> acc=0.8671 (kernel 3675.4s, train 0.0s)
+[nlsweep] D=1024 num_landmark=320 -> acc=0.8707 (kernel 7557.7s, train 0.0s)
+
+All points done in 7558.1s wall.
+
+Wrote plots + results.json to results_gesture_3306263/
+
+===== SUMMARY =====
+Dimension sweep:
+  D=   64  Permutation=0.2552  Nystrom+GAK=0.7638
+  D=  128  Permutation=0.3632  Nystrom+GAK=0.8110
+  D=  256  Permutation=0.4269  Nystrom+GAK=0.8386
+  D=  512  Permutation=0.4966  Nystrom+GAK=0.8453
+  D= 1024  Permutation=0.4950  Nystrom+GAK=0.8490
+  D= 2048  Permutation=0.5310  Nystrom+GAK=0.8601
+  D= 4096  Permutation=0.5664  Nystrom+GAK=0.8596
+  D= 8192  Permutation=0.5597  Nystrom+GAK=0.8615
+  D=10000  Permutation=0.5595  Nystrom+GAK=0.8638
+Job 3306263 finished at Mon Jul 20 23:10:05 CDT 2026
+Results + plots in: /scratch/09424/jiwoooop/hdc-language/results_gesture_3306263/

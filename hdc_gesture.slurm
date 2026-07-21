@@ -21,10 +21,10 @@
 #SBATCH -J hdc_gesture              # job name
 #SBATCH -o hdc_gesture.%j.out       # stdout  (%j = job id)
 #SBATCH -e hdc_gesture.%j.err       # stderr
-#SBATCH -p normal                   # queue (LS6 CPU partition)
+#SBATCH -p gpu-h100                   # queue (LS6 CPU partition)
 #SBATCH -N 1                        # nodes
 #SBATCH -n 1                        # tasks (single multiprocessing driver)
-#SBATCH -t 04:00:00                 # wall time hh:mm:ss (generous; GAK dominates cost)
+#SBATCH -t 06:00:00                 # wall time hh:mm:ss (generous; GAK dominates cost)
 #SBATCH --mail-type=begin,end,fail
 ##SBATCH --mail-user=you@example.com   # <-- uncomment + set to get email notifications
 ##SBATCH -A YOUR_ALLOCATION            # <-- uncomment + set if your account needs -A

@@ -18,12 +18,13 @@
 #SBATCH -J hdc_nystrom              # job name
 #SBATCH -o hdc_nystrom.%j.out       # stdout  (%j = job id)
 #SBATCH -e hdc_nystrom.%j.err       # stderr
-#SBATCH -p normal                   # queue (LS6 CPU partition)
+#SBATCH -p normal              # queue (LS6 CPU partition)
 #SBATCH -N 1                        # nodes
 #SBATCH -n 1                        # tasks (single multiprocessing driver)
-#SBATCH -t 03:00:00                 # wall time hh:mm:ss (generous; sweep is far shorter)
+#SBATCH -t 02:00:00                 # wall time hh:mm:ss (bumped: fine landmark sweep + stratified
+                                    # comparison now run 10 seeded repeats each for averaging)
 #SBATCH --mail-type=begin,end,fail
-##SBATCH --mail-user=you@example.com   # <-- uncomment + set to get email notifications
+##SBATCH --mail-user=jiwooo.park04@gmail.com  # <-- uncomment + set to get email notifications
 ##SBATCH -A YOUR_ALLOCATION            # <-- uncomment + set if your account needs -A
 
 set -euo pipefail
