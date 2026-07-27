@@ -160,3 +160,50 @@ sbatch hdc_gesture.slurm
   kernel like GAK relies on more than the spectrum kernel's discrete bag-of-k-mers counts did —
   if Nystrom+GAK accuracy looks surprisingly low, this binarization step is the first place to
   look, even though no dedicated ablation isolating it is included in this sweep.
+
+---
+
+# Running the UWaveGestureLibrary SNN baseline (snnTorch)
+
+A third point of comparison on the same UWaveGestureLibrary train/test split and accuracy
+metric as the two HDC methods above — but a genuinely different model class: a small
+feedforward spiking neural network (`snn_encoder.py`), trained end to end with backprop
+through time, rather than a bundled hypervector. Driven by `run_gesture_snn_experiments.py` /
+`hdc_gesture_snn.slurm`.
+
+**Model**: each channel's raw 315-sample series is delta-modulation encoded into a spike train
+(`spikegen.delta`), fed into `fc1 -> lif1 (Leaky) -> fc2 -> lif2 (Leaky)`, `lif2` having 8 output
+neurons (one per gesture class). Classification is rate-coded: each class's output spikes are
+summed over all 315 timesteps, and the argmax is the prediction. Trained with
+`snntorch.functional.ce_rate_loss` + Adam.
+
+**New third-party dependency**: `torch` + `snntorch`, in addition to `numpy`/`matplotlib` — this
+is the only experiment in this repo that needs torch (the HDC encoders deliberately avoid it; see
+`nystrom_encoder.py`'s docstring). Install it the same way:
+
+```bash
+pip install torch snntorch
+```
+
+**Compute target**: unlike the two CPU-only HDC sweeps, the SNN training loop is dense-matmul-
+bound (fc layers applied every timestep, every epoch), so this is the first workload in the repo
+that actually benefits from a GPU — `hdc_gesture_snn.slurm` targets TACC's `gpu-h100` partition.
+**No wall-clock comparison is made against the HDC methods anywhere** (GPU vs CPU time isn't a
+fair comparison) — only accuracy, which is hardware-independent.
+
+**Headline result**: accuracy vs. hidden layer size (`accuracy_vs_hidden_size_snn.png`), swept
+over `{16, 32, 64, 128}` — the SNN's own capacity knob, analogous in spirit to the HDC methods'
+vector dimension `D` but not the same quantity, so it's reported on its own plot rather than
+merged into `accuracy_vs_dimension_gesture.png`.
+
+Smoke test first, same pattern as above:
+
+```bash
+python3 run_gesture_snn_experiments.py --quick --outdir results_gesture_snn_smoketest --device cpu
+```
+
+Submit the full run:
+
+```bash
+sbatch hdc_gesture_snn.slurm
+```
