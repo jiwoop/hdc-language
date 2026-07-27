@@ -35,8 +35,11 @@ pipeline on a login node or a short debug allocation before committing a full ru
 import argparse
 import json
 import os
+import sys
 import time
 from multiprocessing import Pool
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
 import numpy as np
 import matplotlib

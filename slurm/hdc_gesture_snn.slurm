@@ -14,12 +14,12 @@
 # this project -- GPU vs CPU time isn't a fair comparison. Only accuracy
 # (hardware-independent) is compared across all three methods.
 #
-# Submit:   sbatch hdc_gesture_snn.slurm
-# Monitor:  squeue -u $USER      /      tail -f hdc_gesture_snn.<jobid>.out
+# Submit (from the repo root):   sbatch slurm/hdc_gesture_snn.slurm
+# Monitor:  squeue -u $USER      /      tail -f logs/hdc_gesture_snn.<jobid>.out
 #----------------------------------------------------------------------------
 #SBATCH -J hdc_gesture_snn           # job name
-#SBATCH -o hdc_gesture_snn.%j.out    # stdout  (%j = job id)
-#SBATCH -e hdc_gesture_snn.%j.err    # stderr
+#SBATCH -o logs/hdc_gesture_snn.%j.out  # stdout  (%j = job id)
+#SBATCH -e logs/hdc_gesture_snn.%j.err  # stderr
 #SBATCH -p gpu-h100                  # queue (LS6 GPU partition)
 #SBATCH -N 1                         # nodes
 #SBATCH -n 1                         # tasks (single training driver)
@@ -33,7 +33,7 @@ set -euo pipefail
 
 echo "Job $SLURM_JOB_ID starting on $(hostname) at $(date)"
 
-cd "$SLURM_SUBMIT_DIR"
+cd "$SLURM_SUBMIT_DIR"  # repo root -- must submit via `sbatch slurm/hdc_gesture_snn.slurm` from there
 
 # --- Environment ------------------------------------------------------------
 # Third-party deps: numpy, matplotlib (as in the other two sweeps) PLUS
@@ -51,7 +51,7 @@ python3 -c "import numpy, matplotlib, torch, snntorch" || {
 OUTDIR="results_gesture_snn_${SLURM_JOB_ID}"
 
 echo "Running gesture SNN sweep -> $OUTDIR/"
-python3 run_gesture_snn_experiments.py --device cuda --outdir "$OUTDIR"
+python3 scripts/run_gesture_snn_experiments.py --device cuda --outdir "$OUTDIR"
 
 echo "Job $SLURM_JOB_ID finished at $(date)"
 echo "Results + plot in: $SLURM_SUBMIT_DIR/$OUTDIR/"

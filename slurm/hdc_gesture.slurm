@@ -15,12 +15,12 @@
 # kernel build (at a fixed landmark count) completes; only the separate
 # num-landmark sweep pays the GAK cost repeatedly, once per landmark count tested.
 #
-# Submit:   sbatch hdc_gesture.slurm
-# Monitor:  squeue -u $USER      /      tail -f hdc_gesture.<jobid>.out
+# Submit (from the repo root):   sbatch slurm/hdc_gesture.slurm
+# Monitor:  squeue -u $USER      /      tail -f logs/hdc_gesture.<jobid>.out
 #----------------------------------------------------------------------------
 #SBATCH -J hdc_gesture              # job name
-#SBATCH -o hdc_gesture.%j.out       # stdout  (%j = job id)
-#SBATCH -e hdc_gesture.%j.err       # stderr
+#SBATCH -o logs/hdc_gesture.%j.out  # stdout  (%j = job id)
+#SBATCH -e logs/hdc_gesture.%j.err  # stderr
 #SBATCH -p gpu-h100                   # queue (LS6 CPU partition)
 #SBATCH -N 1                        # nodes
 #SBATCH -n 1                        # tasks (single multiprocessing driver)
@@ -34,7 +34,7 @@ set -euo pipefail
 echo "Job $SLURM_JOB_ID starting on $(hostname) at $(date)"
 echo "Node has $(nproc) cores"
 
-cd "$SLURM_SUBMIT_DIR"
+cd "$SLURM_SUBMIT_DIR"  # repo root -- must submit via `sbatch slurm/hdc_gesture.slurm` from there
 
 # --- Environment ------------------------------------------------------------
 # Third-party deps: numpy, matplotlib (as in hdc_nystrom.slurm) PLUS tslearn for
@@ -61,7 +61,7 @@ WORKERS="${SLURM_CPUS_ON_NODE:-$(nproc)}"
 OUTDIR="results_gesture_${SLURM_JOB_ID}"
 
 echo "Running gesture sweep with $WORKERS workers -> $OUTDIR/"
-python3 run_gesture_experiments.py --workers "$WORKERS" --outdir "$OUTDIR"
+python3 scripts/run_gesture_experiments.py --workers "$WORKERS" --outdir "$OUTDIR"
 
 echo "Job $SLURM_JOB_ID finished at $(date)"
 echo "Results + plots in: $SLURM_SUBMIT_DIR/$OUTDIR/"

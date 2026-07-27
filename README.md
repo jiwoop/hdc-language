@@ -1,7 +1,33 @@
+# Project layout
+
+```
+src/        library modules (hdc.py, encoder.py, hdc_train.py, nystrom_encoder.py,
+            permutation_encoder.py, gak_encoder.py, uwave_data.py, snn_encoder.py)
+scripts/    batch drivers (run_experiments.py, run_gesture_experiments.py,
+            run_gesture_snn_experiments.py) -- entry points; add src/ to sys.path
+            themselves, so they work regardless of cwd
+slurm/      TACC job scripts (hdc_nystrom.slurm, hdc_gesture.slurm, hdc_gesture_snn.slurm)
+            -- submit with `sbatch slurm/<name>.slurm` from the repo root
+notebooks/  exploratory prototypes (hdc_lab.ipynb, hdc_nystrom.ipynb) -- each notebook's
+            first code cell chdirs to the repo root and adds src/ to sys.path
+results/    committed results.json + plots from past runs
+logs/       committed SLURM stdout/stderr from past runs
+```
+
+All three data directories (`UWaveGestureLibraryAll/`, `uWaveGestureLibrary_RAW/`,
+`language_recognition_dataset/`) stay at the repo root, untracked by git -- every
+`DATA_DIR` constant in `src/` is a path relative to the repo root, so scripts, the SLURM
+jobs, and the notebooks all expect to run (or `chdir` to) the repo root as their working
+directory. New `results_<jobid>/` output directories land at the repo root too, same as
+the existing `results/results_*` ones did before being moved there.
+
+---
+
 # Running the HDC Nystrom sweep on Lonestar6
 
 Reproduces everything in `hdc_nystrom.ipynb` as a batch job:
-`run_experiments.py` (the compute + plots) driven by `hdc_nystrom.slurm` (the LS6 job).
+`scripts/run_experiments.py` (the compute + plots) driven by `slurm/hdc_nystrom.slurm`
+(the LS6 job).
 
 ## Why CPU, not GPU
 
@@ -25,24 +51,24 @@ module load python3
 pip3 install --user numpy matplotlib   # only needed once; persists across jobs/sessions
 ```
 
-`hdc_nystrom.slurm` also runs this check automatically at job start (so a fresh account
+`slurm/hdc_nystrom.slurm` also runs this check automatically at job start (so a fresh account
 self-heals on first submit), but running it once yourself on the login node lets you catch
 install issues before burning a queued job on it.
 
 Before submitting, you may still need to:
-- Set `#SBATCH -A YOUR_ALLOCATION` in `hdc_nystrom.slurm` if your TACC account requires an
-  allocation flag (run `sbatch hdc_nystrom.slurm` once — if it errors asking for `-A`, you
+- Set `#SBATCH -A YOUR_ALLOCATION` in `slurm/hdc_nystrom.slurm` if your TACC account requires an
+  allocation flag (run `sbatch slurm/hdc_nystrom.slurm` once — if it errors asking for `-A`, you
   need it; check available allocations with `/usr/local/etc/taccinfo`).
 - Optionally uncomment `--mail-user` for email notifications.
 
 ## Smoke test first (cheap)
 
 On a login node or a short `development`-queue allocation, validate the pipeline on a reduced
-grid before spending a full node:
+grid before spending a full node (run from the repo root):
 
 ```bash
 module load python3
-python3 run_experiments.py --quick --workers 4 --outdir results_smoketest
+python3 scripts/run_experiments.py --quick --workers 4 --outdir results_smoketest
 ```
 
 `--quick` runs a single small dimension, k=3 only, and a reduced bit-budget/ensemble grid —
@@ -50,20 +76,23 @@ enough to confirm imports, pickling, plotting, and JSON output all work.
 
 ## Submit the full run
 
+From the repo root:
+
 ```bash
-sbatch hdc_nystrom.slurm
+sbatch slurm/hdc_nystrom.slurm
 ```
 
 Monitor it:
 
 ```bash
-squeue -u $USER                    # queue state
-tail -f hdc_nystrom.<jobid>.out    # live progress (each point prints as it finishes)
+squeue -u $USER                         # queue state
+tail -f logs/hdc_nystrom.<jobid>.out    # live progress (each point prints as it finishes)
 ```
 
 ## Outputs
 
-Everything lands in `results_<jobid>/`:
+Everything lands in `results_<jobid>/` (at the repo root; move it under `results/` alongside
+the existing runs if you want to keep it committed):
 
 - `results.json` — every accuracy number, per-language breakdowns, and the landmark-count
   timing measurements, in one machine-readable file.
@@ -90,7 +119,8 @@ generalized as above), plus the round-2 finer landmark sweep.
   run's wall time (printed at the end).
 - `--workers` defaults to `SLURM_CPUS_ON_NODE`. Leave it; the script picks the node's core
   count automatically.
-- To add/remove experiment points, edit the grid constants at the top of `run_experiments.py`.
+- To add/remove experiment points, edit the grid constants at the top of
+  `scripts/run_experiments.py`.
 
 ---
 
@@ -98,9 +128,9 @@ generalized as above), plus the round-2 finer landmark sweep.
 
 A second, independent experiment: gesture classification on UWaveGestureLibrary (8 classes,
 3-axis accelerometer), comparing a multi-channel permutation HDC baseline
-(`permutation_encoder.py`) against a Nystrom + GAK (Global Alignment Kernel) HDC encoder
-(`gak_encoder.py`). Driven by `run_gesture_experiments.py` / `hdc_gesture.slurm`, same
-Pool-over-one-128-core-node shape as the language sweep above.
+(`src/permutation_encoder.py`) against a Nystrom + GAK (Global Alignment Kernel) HDC encoder
+(`src/gak_encoder.py`). Driven by `scripts/run_gesture_experiments.py` / `slurm/hdc_gesture.slurm`,
+same Pool-over-one-128-core-node shape as the language sweep above.
 
 **New third-party dependency**: this experiment needs `tslearn` (for GAK) in addition to
 `numpy`/`matplotlib` — unlike the language sweep, this repo is no longer numpy+matplotlib-only.
@@ -111,10 +141,10 @@ module load python3
 pip3 install --user numpy matplotlib tslearn
 ```
 
-**Data**: `UWaveGestureLibraryAll/UWaveGestureLibraryAll_{TRAIN,TEST}.ts` stores each gesture
-as X/Y/Z concatenated into one 945-length univariate series. `uwave_data.py` splits each row
-back into genuine `(3 channels, 315 samples)` data before either encoder sees it — confirm this
-directory is present (it's untracked; not part of git history) before running.
+**Data**: `UWaveGestureLibraryAll/UWaveGestureLibraryAll_{TRAIN,TEST}.ts` (repo root) stores each
+gesture as X/Y/Z concatenated into one 945-length univariate series. `src/uwave_data.py` splits
+each row back into genuine `(3 channels, 315 samples)` data before either encoder sees it —
+confirm this directory is present (it's untracked; not part of git history) before running.
 
 **Headline result**: accuracy vs. vector dimension `D`, both methods on one plot
 (`accuracy_vs_dimension_gesture.png`), swept over
@@ -131,22 +161,22 @@ that the language task never had (continuous accelerometer values must be quanti
 discrete levels before the permutation encoder's item-memory lookups apply).
 
 GAK is expensive — empirically ~1.5ms per (example, landmark) pair on this data — and its cost
-is set by the *number of examples and landmarks*, not by `D`. `run_gesture_experiments.py`
+is set by the *number of examples and landmarks*, not by `D`. `scripts/run_gesture_experiments.py`
 exploits this: for the dimension sweep it computes the GAK kernel matrices once (at a fixed
 landmark count) and reuses them across every `D`, rather than recomputing GAK per `(D,
 landmark)` point. Only the num-landmark sweep pays GAK's cost repeatedly, once per landmark
 count tested.
 
-Smoke test first, same pattern as above:
+Smoke test first, same pattern as above (run from the repo root):
 
 ```bash
-python3 run_gesture_experiments.py --quick --workers 4 --outdir results_gesture_smoketest
+python3 scripts/run_gesture_experiments.py --quick --workers 4 --outdir results_gesture_smoketest
 ```
 
 Submit the full run:
 
 ```bash
-sbatch hdc_gesture.slurm
+sbatch slurm/hdc_gesture.slurm
 ```
 
 **Is HDC actually a good fit here?** Worth reading critically, not taking for granted:
@@ -167,9 +197,9 @@ sbatch hdc_gesture.slurm
 
 A third point of comparison on the same UWaveGestureLibrary train/test split and accuracy
 metric as the two HDC methods above — but a genuinely different model class: a small
-feedforward spiking neural network (`snn_encoder.py`), trained end to end with backprop
-through time, rather than a bundled hypervector. Driven by `run_gesture_snn_experiments.py` /
-`hdc_gesture_snn.slurm`.
+feedforward spiking neural network (`src/snn_encoder.py`), trained end to end with backprop
+through time, rather than a bundled hypervector. Driven by
+`scripts/run_gesture_snn_experiments.py` / `slurm/hdc_gesture_snn.slurm`.
 
 **Model**: each channel's raw 315-sample series is delta-modulation encoded into a spike train
 (`spikegen.delta`), fed into `fc1 -> lif1 (Leaky) -> fc2 -> lif2 (Leaky)`, `lif2` having 8 output
@@ -179,7 +209,7 @@ summed over all 315 timesteps, and the argmax is the prediction. Trained with
 
 **New third-party dependency**: `torch` + `snntorch`, in addition to `numpy`/`matplotlib` — this
 is the only experiment in this repo that needs torch (the HDC encoders deliberately avoid it; see
-`nystrom_encoder.py`'s docstring). Install it the same way:
+`src/nystrom_encoder.py`'s docstring). Install it the same way:
 
 ```bash
 pip install torch snntorch
@@ -187,23 +217,23 @@ pip install torch snntorch
 
 **Compute target**: unlike the two CPU-only HDC sweeps, the SNN training loop is dense-matmul-
 bound (fc layers applied every timestep, every epoch), so this is the first workload in the repo
-that actually benefits from a GPU — `hdc_gesture_snn.slurm` targets TACC's `gpu-h100` partition.
-**No wall-clock comparison is made against the HDC methods anywhere** (GPU vs CPU time isn't a
-fair comparison) — only accuracy, which is hardware-independent.
+that actually benefits from a GPU — `slurm/hdc_gesture_snn.slurm` targets TACC's `gpu-h100`
+partition. **No wall-clock comparison is made against the HDC methods anywhere** (GPU vs CPU time
+isn't a fair comparison) — only accuracy, which is hardware-independent.
 
 **Headline result**: accuracy vs. hidden layer size (`accuracy_vs_hidden_size_snn.png`), swept
 over `{16, 32, 64, 128}` — the SNN's own capacity knob, analogous in spirit to the HDC methods'
 vector dimension `D` but not the same quantity, so it's reported on its own plot rather than
 merged into `accuracy_vs_dimension_gesture.png`.
 
-Smoke test first, same pattern as above:
+Smoke test first, same pattern as above (run from the repo root):
 
 ```bash
-python3 run_gesture_snn_experiments.py --quick --outdir results_gesture_snn_smoketest --device cpu
+python3 scripts/run_gesture_snn_experiments.py --quick --outdir results_gesture_snn_smoketest --device cpu
 ```
 
 Submit the full run:
 
 ```bash
-sbatch hdc_gesture_snn.slurm
+sbatch slurm/hdc_gesture_snn.slurm
 ```

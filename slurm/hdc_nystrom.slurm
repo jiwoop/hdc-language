@@ -12,12 +12,12 @@
 # the single slowest point rather than the sum. Scaling past one node would need MPI/launcher
 # plumbing this pure-multiprocessing driver doesn't use.
 #
-# Submit:   sbatch hdc_nystrom.slurm
-# Monitor:  squeue -u $USER      /      tail -f hdc_nystrom.<jobid>.out
+# Submit (from the repo root):   sbatch slurm/hdc_nystrom.slurm
+# Monitor:  squeue -u $USER      /      tail -f logs/hdc_nystrom.<jobid>.out
 #----------------------------------------------------------------------------
 #SBATCH -J hdc_nystrom              # job name
-#SBATCH -o hdc_nystrom.%j.out       # stdout  (%j = job id)
-#SBATCH -e hdc_nystrom.%j.err       # stderr
+#SBATCH -o logs/hdc_nystrom.%j.out  # stdout  (%j = job id)
+#SBATCH -e logs/hdc_nystrom.%j.err  # stderr
 #SBATCH -p normal              # queue (LS6 CPU partition)
 #SBATCH -N 1                        # nodes
 #SBATCH -n 1                        # tasks (single multiprocessing driver)
@@ -32,7 +32,7 @@ set -euo pipefail
 echo "Job $SLURM_JOB_ID starting on $(hostname) at $(date)"
 echo "Node has $(nproc) cores"
 
-cd "$SLURM_SUBMIT_DIR"
+cd "$SLURM_SUBMIT_DIR"  # repo root -- must submit via `sbatch slurm/hdc_nystrom.slurm` from there
 
 # --- Environment ------------------------------------------------------------
 # No conda needed: the only third-party deps are numpy + matplotlib, both installable
@@ -61,7 +61,7 @@ WORKERS="${SLURM_CPUS_ON_NODE:-$(nproc)}"
 OUTDIR="results_${SLURM_JOB_ID}"
 
 echo "Running full sweep with $WORKERS workers -> $OUTDIR/"
-python3 run_experiments.py --workers "$WORKERS" --outdir "$OUTDIR"
+python3 scripts/run_experiments.py --workers "$WORKERS" --outdir "$OUTDIR"
 
 echo "Job $SLURM_JOB_ID finished at $(date)"
 echo "Results + plots in: $SLURM_SUBMIT_DIR/$OUTDIR/"
