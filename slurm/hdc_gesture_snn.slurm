@@ -22,12 +22,9 @@
 #SBATCH -e logs/hdc_gesture_snn.%j.err  # stderr
 #SBATCH -p gpu-h100                  # queue (LS6 GPU partition)
 #SBATCH -N 1                         # nodes
-#SBATCH -n 1                         # tasks (single training driver)
-#SBATCH --gres=gpu:1                 # 1 GPU (sweep runs sequentially on it)
+#SBATCH -n 1                         # tasks
 #SBATCH -t 04:00:00                  # wall time hh:mm:ss
-#SBATCH --mail-type=begin,end,fail
-##SBATCH --mail-user=you@example.com   # <-- uncomment + set to get email notifications
-##SBATCH -A YOUR_ALLOCATION            # <-- uncomment + set if your account needs -A
+#SBATCH -A OTH21017                  # Allocation ID
 
 set -euo pipefail
 
