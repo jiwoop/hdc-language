@@ -1,26 +1,30 @@
-"""Spiking neural network baseline for gesture classification, using snnTorch.
-
-A third point of comparison alongside the two HDC encoders (permutation_encoder.py,
-gak_encoder.py) on the same UWaveGestureLibrary train/test split and accuracy metric --
-not an HDC encoding at all, but a small feedforward SNN trained end to end.
+"""Spiking neural network baselines for gesture classification, using snnTorch.
+    feedforward SNNs trained end to end.
 
 Pipeline:
-  1. Delta-modulation encoding (spikegen.delta): each channel's raw 315-sample real-
-     valued series becomes a spike train of the same length, independently per channel
-     (spikes at (t, channel) whenever |x[t] - x[t-1]| crosses `threshold`, signed via
-     off_spike=True). uwave_data's (3, 315) arrays are transposed to (315, 3) first --
-     spikegen.delta takes its deltas along dim 0 (time).
-  2. A small feedforward SNN: fc1 (Linear) -> lif1 (Leaky) -> fc2 (Linear) -> lif2
-     (Leaky), lif2 having 8 output neurons (one per gesture class). Run once per
-     timestep across all 315 steps, membrane potentials carried across steps, output
-     spikes recorded at every step -- the standard snntorch feedforward pattern
-     (tutorial 3's architecture, extended with the training/classification tutorial 3
-     itself skips).
-  3. Classification: rate coding. Sum each class's output spikes over all 315
+  1. Encoding -- either:
+     - Rate coding (spikegen.rate): each channel's raw 315-sample real-valued series is
+       min-max normalized into [0, 1] then used as per-timestep Bernoulli spike
+       probability.
+     - Delta-modulation coding (spikegen.delta): each channel's raw 315-sample series
+       becomes a spike train of the same length, independently per channel (spikes at
+       (t, channel) whenever |x[t] - x[t-1]| crosses `threshold`, signed via
+       off_spike=True).
+     Either way, uwave_data's (3, 315) arrays are transposed to (315, 3) first --
+     both spikegen functions take time along dim 0.
+  2. A small feedforward SNN: fc1 (Linear) -> lif1 -> fc2 (Linear) -> lif2, lif2 having
+     8 output neurons (one per gesture class). lif1/lif2 are either snn.Leaky
+     (1st-order LIF, membrane potential only) or snn.Synaptic (2nd-order LIF, adds a
+     synaptic current state with its own decay `alpha`). Run once per timestep across
+     all 315 steps, hidden state(s) carried across steps, output spikes recorded at
+     every step -- the standard snntorch feedforward pattern (tutorial 3's
+     architecture, extended with the training/classification tutorial 3 itself skips).
+  3. Classification: rate decoding. Sum each class's output spikes over all 315
      timesteps; argmax of the 8 per-class counts is the prediction.
   4. Training: snntorch.functional.ce_rate_loss (cross-entropy over the per-timestep
-     output spike rate), backprop through time via snn.Leaky's default ATan surrogate
-     gradient, Adam optimizer.
+     output spike rate), backprop through time via the ATan surrogate gradient
+     (explicit spike_grad=surrogate.atan(), matching snnTorch's own default), Adam
+     optimizer.
 """
 import numpy as np
 import torch
@@ -28,12 +32,17 @@ import torch.nn as nn
 import snntorch as snn
 import snntorch.functional as SF
 import snntorch.spikegen as spikegen
+from snntorch import surrogate
 
 import uwave_data as data
 
+"""
+Adjustable parameters.
+"""
 DEFAULT_HIDDEN_SIZE = 64
 DEFAULT_BETA = 0.9
-DEFAULT_SPIKE_THRESHOLD = 0.9   # snn.Leaky membrane firing threshold
+DEFAULT_ALPHA = 0.9             # snn.Synaptic synaptic-current decay
+DEFAULT_SPIKE_THRESHOLD = 0.9   # membrane firing threshold (Leaky and Synaptic)
 DEFAULT_DELTA_THRESHOLD = 0.1   # spikegen.delta's per-step change threshold
 DEFAULT_NUM_EPOCHS = 30
 DEFAULT_BATCH_SIZE = 32
@@ -41,25 +50,44 @@ DEFAULT_LR = 1e-3
 NUM_CLASSES = len(data.CLASSES)
 
 
-def encode_spike_trains(examples, delta_threshold=DEFAULT_DELTA_THRESHOLD):
-    """examples: list of (n_channels, seriesLength) arrays -> float32 tensor of
-    shape (seriesLength, batch, n_channels), spikes in {-1, 0, 1} per (t, channel)."""
+def _normalize_to_unit_interval(batch):
+    """batch: (seriesLength, batch, n_channels) float32 tensor -> same shape, each
+    (example, channel) trace min-max scaled into [0, 1] independently. Needed because
+    the raw data is already z-scored (mean 0, std 1, range roughly [-4, 8]) and
+    spikegen.rate's rate_conv clamps to [0, 1] before treating values as spike
+    probabilities -- without this, ~70% of values get clipped to the same 0 or 1."""
+    mins = batch.amin(dim=0, keepdim=True)
+    maxs = batch.amax(dim=0, keepdim=True)
+    span = (maxs - mins).clamp_min(1e-8)
+    return (batch - mins) / span
+
+
+"""examples: list of (n_channels, seriesLength) arrays -> float32 tensor of
+    shape (seriesLength, batch, n_channels), spikes in {0, 1} per (t, channel)."""
+def encode_rate_spike_trains(examples):
+    batch = torch.stack([
+        torch.from_numpy(ex.T.astype(np.float32)) for ex in examples
+    ], dim=1)  # (seriesLength, batch, n_channels)
+    batch = _normalize_to_unit_interval(batch)
+    return spikegen.rate(batch, time_var_input=True)
+
+def encode_delta_spike_trains(examples, delta_threshold=DEFAULT_DELTA_THRESHOLD):
     batch = torch.stack([
         torch.from_numpy(ex.T.astype(np.float32)) for ex in examples
     ], dim=1)  # (seriesLength, batch, n_channels)
     return spikegen.delta(batch, threshold=delta_threshold, off_spike=True)
 
 
-class SNNGestureClassifier(nn.Module):
-    """fc1 -> lif1 -> fc2 -> lif2, lif2 = 8 output neurons (one per class)."""
+class SNNGestureClassifierLeaky(nn.Module):
+    """fc1 -> lif1 -> fc2 -> lif2 (1st-order LIF), lif2 = 8 output neurons (one per class)."""
 
     def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
                  beta=DEFAULT_BETA, threshold=DEFAULT_SPIKE_THRESHOLD):
         super().__init__()
         self.fc1 = nn.Linear(n_channels, hidden_size)
-        self.lif1 = snn.Leaky(beta=beta, threshold=threshold)
+        self.lif1 = snn.Leaky(beta=beta, threshold=threshold, spike_grad=surrogate.atan())
         self.fc2 = nn.Linear(hidden_size, num_classes)
-        self.lif2 = snn.Leaky(beta=beta, threshold=threshold)
+        self.lif2 = snn.Leaky(beta=beta, threshold=threshold, spike_grad=surrogate.atan())
 
     def forward(self, spk_in):
         """spk_in: (num_steps, batch, n_channels) -> spk2_rec: (num_steps, batch, num_classes)."""
@@ -78,6 +106,37 @@ class SNNGestureClassifier(nn.Module):
         return torch.stack(spk2_rec, dim=0)
 
 
+class SNNGestureClassifierSynaptic(nn.Module):
+    """fc1 -> lif1 -> fc2 -> lif2 (2nd-order LIF, snn.Synaptic), lif2 = 8 output
+    neurons (one per class). Same shape as SNNGestureClassifierLeaky, but each
+    neuron also carries a synaptic current state (decay `alpha`) alongside the
+    membrane potential (decay `beta`)."""
+
+    def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
+                 alpha=DEFAULT_ALPHA, beta=DEFAULT_BETA, threshold=DEFAULT_SPIKE_THRESHOLD):
+        super().__init__()
+        self.fc1 = nn.Linear(n_channels, hidden_size)
+        self.lif1 = snn.Synaptic(alpha=alpha, beta=beta, threshold=threshold, spike_grad=surrogate.atan())
+        self.fc2 = nn.Linear(hidden_size, num_classes)
+        self.lif2 = snn.Synaptic(alpha=alpha, beta=beta, threshold=threshold, spike_grad=surrogate.atan())
+
+    def forward(self, spk_in):
+        """spk_in: (num_steps, batch, n_channels) -> spk2_rec: (num_steps, batch, num_classes)."""
+        num_steps = spk_in.shape[0]
+        syn1, mem1 = self.lif1.init_synaptic()
+        syn2, mem2 = self.lif2.init_synaptic()
+
+        spk2_rec = []
+        for step in range(num_steps):
+            cur1 = self.fc1(spk_in[step])
+            spk1, syn1, mem1 = self.lif1(cur1, syn1, mem1)
+            cur2 = self.fc2(spk1)
+            spk2, syn2, mem2 = self.lif2(cur2, syn2, mem2)
+            spk2_rec.append(spk2)
+
+        return torch.stack(spk2_rec, dim=0)
+
+
 def _flatten_by_class(by_class):
     """{label: [examples]} -> (examples list, integer-label tensor), label order
     fixed by data.CLASSES ("1".."8" -> 0..7) so class indices match lif2's 8 outputs."""
@@ -90,17 +149,17 @@ def _flatten_by_class(by_class):
     return examples, torch.tensor(labels, dtype=torch.long)
 
 
-def train_snn(train_by_class, hidden_size=DEFAULT_HIDDEN_SIZE, beta=DEFAULT_BETA,
-              spike_threshold=DEFAULT_SPIKE_THRESHOLD, delta_threshold=DEFAULT_DELTA_THRESHOLD,
+def train_snn(train_by_class, encode_fn, model_cls=SNNGestureClassifierLeaky, model_kwargs=None,
               num_epochs=DEFAULT_NUM_EPOCHS, batch_size=DEFAULT_BATCH_SIZE, lr=DEFAULT_LR,
               device="cpu", seed=42):
-    """Trains an SNNGestureClassifier via SF.ce_rate_loss + Adam. Returns the trained model."""
+    """Trains a model_cls (SNNGestureClassifierLeaky or SNNGestureClassifierSynaptic)
+    via SF.ce_rate_loss + Adam, encoding each batch with encode_fn (examples -> spk_in).
+    Returns the trained model."""
     torch.manual_seed(seed)
     examples, labels = _flatten_by_class(train_by_class)
     labels = labels.to(device)
 
-    model = SNNGestureClassifier(data.N_CHANNELS, hidden_size, beta=beta,
-                                  threshold=spike_threshold).to(device)
+    model = model_cls(data.N_CHANNELS, **(model_kwargs or {})).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = SF.ce_rate_loss()
 
@@ -113,7 +172,7 @@ def train_snn(train_by_class, hidden_size=DEFAULT_HIDDEN_SIZE, beta=DEFAULT_BETA
             batch_examples = [examples[i] for i in idx]
             batch_labels = labels[idx]
 
-            spk_in = encode_spike_trains(batch_examples, delta_threshold).to(device)
+            spk_in = encode_fn(batch_examples).to(device)
             spk2_rec = model(spk_in)
             loss = loss_fn(spk2_rec, batch_labels)
 
@@ -127,11 +186,11 @@ def train_snn(train_by_class, hidden_size=DEFAULT_HIDDEN_SIZE, beta=DEFAULT_BETA
     return model
 
 
-def evaluate_snn(model, test_by_class, delta_threshold=DEFAULT_DELTA_THRESHOLD,
+def evaluate_snn(model, test_by_class, encode_fn,
                   batch_size=DEFAULT_BATCH_SIZE, device="cpu", return_per_class=False):
-    """Rate-coded classification: argmax of each class's summed output-spike count
-    over all timesteps. Mirrors evaluate_permutation/evaluate_gak_from_kernels's
-    (accuracy[, per_class]) return shape."""
+    """Rate-decoded classification: argmax of each class's summed output-spike count
+    over all timesteps, encoding each batch with encode_fn (examples -> spk_in). Mirrors
+    evaluate_permutation/evaluate_gak_from_kernels's (accuracy[, per_class]) return shape."""
     model.eval()
     idx_to_label = {i: label for i, label in enumerate(data.CLASSES)}
 
@@ -143,7 +202,7 @@ def evaluate_snn(model, test_by_class, delta_threshold=DEFAULT_DELTA_THRESHOLD,
         for label, exs in test_by_class.items():
             for start in range(0, len(exs), batch_size):
                 batch_examples = exs[start:start + batch_size]
-                spk_in = encode_spike_trains(batch_examples, delta_threshold).to(device)
+                spk_in = encode_fn(batch_examples).to(device)
                 spk2_rec = model(spk_in)
                 spike_counts = spk2_rec.sum(dim=0)  # (batch, num_classes)
                 preds = spike_counts.argmax(dim=1).tolist()
@@ -172,8 +231,11 @@ if __name__ == "__main__":
     train_by_class = data.load_split("TRAIN")
     test_by_class = data.load_split("TEST")
 
-    model = train_snn(train_by_class, device=device, num_epochs=10)
-    accuracy, per_class = evaluate_snn(model, test_by_class, device=device, return_per_class=True)
+    model = train_snn(train_by_class, encode_rate_spike_trains,
+                       model_kwargs={"hidden_size": DEFAULT_HIDDEN_SIZE},
+                       device=device, num_epochs=10)
+    accuracy, per_class = evaluate_snn(model, test_by_class, encode_rate_spike_trains,
+                                        device=device, return_per_class=True)
     print(f"hidden_size={DEFAULT_HIDDEN_SIZE} -> accuracy={accuracy:.4f}")
     for label in sorted(per_class):
         print(f"  class {label}: {per_class[label]:.4f}")

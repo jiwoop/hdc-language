@@ -56,13 +56,14 @@ BATCH_SIZE = 32
 
 def run_point(hidden_size, train_by_class, test_by_class, device, num_epochs):
     t0 = time.time()
-    model = se.train_snn(train_by_class, hidden_size=hidden_size, num_epochs=num_epochs,
+    model = se.train_snn(train_by_class, se.encode_rate_spike_trains,
+                          model_kwargs={"hidden_size": hidden_size}, num_epochs=num_epochs,
                           batch_size=BATCH_SIZE, device=device)
     train_s = time.time() - t0
 
     t0 = time.time()
-    accuracy, per_class = se.evaluate_snn(model, test_by_class, batch_size=BATCH_SIZE,
-                                           device=device, return_per_class=True)
+    accuracy, per_class = se.evaluate_snn(model, test_by_class, se.encode_rate_spike_trains,
+                                           batch_size=BATCH_SIZE, device=device, return_per_class=True)
     eval_s = time.time() - t0
 
     return {"method": "snn", "hidden_size": hidden_size, "num_epochs": num_epochs,
