@@ -1,0 +1,17 @@
+{
+  "permutation": {
+    "param": 4096,
+    "param_name": "D",
+    "accuracy": 0.5664433277498604
+  },
+  "gak": {
+    "param": 10000,
+    "param_name": "D",
+    "accuracy": 0.8637632607481853
+  },
+  "snn": {
+    "param": 128,
+    "param_name": "hidden_size",
+    "accuracy": 0.34226689000558347
+  }
+}
