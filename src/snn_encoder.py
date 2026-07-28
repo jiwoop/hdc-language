@@ -50,6 +50,14 @@ DEFAULT_LR = 1e-3
 NUM_CLASSES = len(data.CLASSES)
 
 
+def _stack_examples(examples):
+    """list of (n_channels, seriesLength) arrays -> float32 tensor of shape
+    (seriesLength, batch, n_channels), raw values, no encoding applied yet."""
+    return torch.stack([
+        torch.from_numpy(ex.T.astype(np.float32)) for ex in examples
+    ], dim=1)
+
+
 def _normalize_to_unit_interval(batch):
     """batch: (seriesLength, batch, n_channels) float32 tensor -> same shape, each
     (example, channel) trace min-max scaled into [0, 1] independently. Needed because
@@ -65,17 +73,11 @@ def _normalize_to_unit_interval(batch):
 """examples: list of (n_channels, seriesLength) arrays -> float32 tensor of
     shape (seriesLength, batch, n_channels), spikes in {0, 1} per (t, channel)."""
 def encode_rate_spike_trains(examples):
-    batch = torch.stack([
-        torch.from_numpy(ex.T.astype(np.float32)) for ex in examples
-    ], dim=1)  # (seriesLength, batch, n_channels)
-    batch = _normalize_to_unit_interval(batch)
+    batch = _normalize_to_unit_interval(_stack_examples(examples))
     return spikegen.rate(batch, time_var_input=True)
 
 def encode_delta_spike_trains(examples, delta_threshold=DEFAULT_DELTA_THRESHOLD):
-    batch = torch.stack([
-        torch.from_numpy(ex.T.astype(np.float32)) for ex in examples
-    ], dim=1)  # (seriesLength, batch, n_channels)
-    return spikegen.delta(batch, threshold=delta_threshold, off_spike=True)
+    return spikegen.delta(_stack_examples(examples), threshold=delta_threshold, off_spike=True)
 
 
 class SNNGestureClassifierLeaky(nn.Module):

@@ -39,7 +39,8 @@ def load_best_hparams(hparam_dir):
     with open(os.path.join(hparam_dir, "results.json")) as f:
         summary = json.load(f)
     best = summary["best"]
-    return best["leaky"]["beta"], best["synaptic"]["alpha"], best["synaptic"]["beta"]
+    return (best["leaky"]["beta"], best["leaky"]["threshold"],
+            best["synaptic"]["alpha"], best["synaptic"]["beta"], best["synaptic"]["threshold"])
 
 
 def plot_raster(spk, title, outpath):
@@ -145,8 +146,10 @@ def main():
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    leaky_beta, synaptic_alpha, synaptic_beta = load_best_hparams(args.hparam_dir)
-    print(f"leaky beta={leaky_beta}, synaptic alpha={synaptic_alpha} beta={synaptic_beta}", flush=True)
+    leaky_beta, leaky_threshold, synaptic_alpha, synaptic_beta, synaptic_threshold = \
+        load_best_hparams(args.hparam_dir)
+    print(f"leaky beta={leaky_beta} threshold={leaky_threshold}, "
+          f"synaptic alpha={synaptic_alpha} beta={synaptic_beta} threshold={synaptic_threshold}", flush=True)
 
     train_by_class = data.load_split("TRAIN")
     example = train_by_class[data.CLASSES[0]][0]  # very first training sample, (3, 315)
@@ -161,18 +164,20 @@ def main():
 
     channel0 = delta_spk[:, 0]  # (315,), values in {-1, 0, 1}
 
-    mem_rec, spk_rec = simulate_leaky(channel0, leaky_beta, se.DEFAULT_SPIKE_THRESHOLD)
+    mem_rec, spk_rec = simulate_leaky(channel0, leaky_beta, leaky_threshold)
     plot_cur_mem_spk(channel0.numpy(), mem_rec.detach().numpy(), spk_rec.detach().numpy(),
-                      thr_line=se.DEFAULT_SPIKE_THRESHOLD,
-                      title=f"snn.Leaky neuron response (beta={leaky_beta}, channel 0, delta-coded input)",
+                      thr_line=leaky_threshold,
+                      title=(f"snn.Leaky neuron response (beta={leaky_beta}, threshold={leaky_threshold}, "
+                             "channel 0, delta-coded input)"),
                       outpath=os.path.join(args.outdir, "neuron_response_leaky.png"))
 
     syn_rec, mem_rec, spk_rec = simulate_synaptic(channel0, synaptic_alpha, synaptic_beta,
-                                                    se.DEFAULT_SPIKE_THRESHOLD)
+                                                    synaptic_threshold)
     plot_spk_cur_mem_spk(channel0.numpy(), syn_rec.detach().numpy(), mem_rec.detach().numpy(),
                           spk_rec.detach().numpy(),
                           title=(f"snn.Synaptic neuron response (alpha={synaptic_alpha}, "
-                                 f"beta={synaptic_beta}, channel 0, delta-coded input)"),
+                                 f"beta={synaptic_beta}, threshold={synaptic_threshold}, "
+                                 "channel 0, delta-coded input)"),
                           outpath=os.path.join(args.outdir, "neuron_response_synaptic.png"))
 
     print(f"\nWrote 4 plots to {args.outdir}/", flush=True)

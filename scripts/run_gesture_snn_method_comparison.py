@@ -5,12 +5,13 @@
   3. delta_synaptic: Delta modulation + Rate decoding + snn.Synaptic
 
 Rate decoding (sum of output spikes per class, argmax) is shared by all three --
-see snn_encoder.py's evaluate_snn. Neuron hyperparameters (beta for Leaky; alpha,
-beta for Synaptic) are read from run_gesture_snn_hparam_sweep.py's results.json
-("best" block) rather than re-tuned here, and reused across every method that
-shares that neuron type (including method 1, which never appears in the beta
-sweep). hidden_size is held fixed at snn_encoder.DEFAULT_HIDDEN_SIZE for all three
-methods -- this comparison doesn't re-sweep model capacity.
+see snn_encoder.py's evaluate_snn. Neuron hyperparameters (beta+threshold for
+Leaky; alpha, beta+threshold for Synaptic) are read from
+run_gesture_snn_hparam_sweep.py's results.json ("best" block) rather than
+re-tuned here, and reused across every method that shares that neuron type
+(including method 1, which never appears in the beta sweep). hidden_size is held
+fixed at snn_encoder.DEFAULT_HIDDEN_SIZE for all three methods -- this comparison
+doesn't re-sweep model capacity.
 
 Usage:
     python run_gesture_snn_method_comparison.py --hparam-dir DIR [--outdir DIR] [--quick] [--device cuda|cpu]
@@ -50,7 +51,8 @@ def load_best_hparams(hparam_dir):
     with open(os.path.join(hparam_dir, "results.json")) as f:
         summary = json.load(f)
     best = summary["best"]
-    return best["leaky"]["beta"], best["synaptic"]["alpha"], best["synaptic"]["beta"]
+    return (best["leaky"]["beta"], best["leaky"]["threshold"],
+            best["synaptic"]["alpha"], best["synaptic"]["beta"], best["synaptic"]["threshold"])
 
 
 def run_method(name, encode_fn, model_cls, model_kwargs, train_by_class, test_by_class,
@@ -101,10 +103,12 @@ def main():
     os.makedirs(args.outdir, exist_ok=True)
 
     num_epochs = 3 if args.quick else NUM_EPOCHS
-    leaky_beta, synaptic_alpha, synaptic_beta = load_best_hparams(args.hparam_dir)
+    leaky_beta, leaky_threshold, synaptic_alpha, synaptic_beta, synaptic_threshold = \
+        load_best_hparams(args.hparam_dir)
 
     print(f"device: {device}", flush=True)
-    print(f"leaky beta={leaky_beta}, synaptic alpha={synaptic_alpha} beta={synaptic_beta}", flush=True)
+    print(f"leaky beta={leaky_beta} threshold={leaky_threshold}, "
+          f"synaptic alpha={synaptic_alpha} beta={synaptic_beta} threshold={synaptic_threshold}", flush=True)
     print("Loading data...", flush=True)
     train_by_class = data.load_split("TRAIN")
     test_by_class = data.load_split("TEST")
@@ -113,11 +117,12 @@ def main():
 
     methods = [
         ("rate_leaky", se.encode_rate_spike_trains, se.SNNGestureClassifierLeaky,
-         {"hidden_size": HIDDEN_SIZE, "beta": leaky_beta}),
+         {"hidden_size": HIDDEN_SIZE, "beta": leaky_beta, "threshold": leaky_threshold}),
         ("delta_leaky", delta_encode_fn, se.SNNGestureClassifierLeaky,
-         {"hidden_size": HIDDEN_SIZE, "beta": leaky_beta}),
+         {"hidden_size": HIDDEN_SIZE, "beta": leaky_beta, "threshold": leaky_threshold}),
         ("delta_synaptic", delta_encode_fn, se.SNNGestureClassifierSynaptic,
-         {"hidden_size": HIDDEN_SIZE, "alpha": synaptic_alpha, "beta": synaptic_beta}),
+         {"hidden_size": HIDDEN_SIZE, "alpha": synaptic_alpha, "beta": synaptic_beta,
+          "threshold": synaptic_threshold}),
     ]
 
     results = []
@@ -140,8 +145,9 @@ def main():
 
     summary = {
         "config": {"hidden_size": HIDDEN_SIZE, "num_epochs": num_epochs, "batch_size": BATCH_SIZE,
-                    "leaky_beta": leaky_beta, "synaptic_alpha": synaptic_alpha,
-                    "synaptic_beta": synaptic_beta, "device": device, "quick": args.quick,
+                    "leaky_beta": leaky_beta, "leaky_threshold": leaky_threshold,
+                    "synaptic_alpha": synaptic_alpha, "synaptic_beta": synaptic_beta,
+                    "synaptic_threshold": synaptic_threshold, "device": device, "quick": args.quick,
                     "wall_seconds": wall_s, "hparam_dir": args.hparam_dir},
         "accuracy_by_method": accuracy_by_method,
         "per_class_by_method": per_class_by_method,
