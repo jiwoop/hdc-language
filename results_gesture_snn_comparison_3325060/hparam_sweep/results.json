@@ -1,0 +1,59 @@
+{
+  "config": {
+    "thresholds": [
+      0.9,
+      0.5,
+      0.25
+    ],
+    "leaky_betas": [
+      0.9,
+      0.7,
+      0.5
+    ],
+    "synaptic_alpha": 0.9,
+    "synaptic_betas": [
+      0.9,
+      0.7,
+      0.5
+    ],
+    "hidden_size": 64,
+    "num_epochs": 30,
+    "batch_size": 32,
+    "device": "cuda",
+    "quick": false,
+    "wall_seconds": 7655.838304519653
+  },
+  "accuracy_by_config": {
+    "leaky_threshold0.9_beta0.9": 0.29759910664433276,
+    "leaky_threshold0.9_beta0.7": 0.3096035734226689,
+    "leaky_threshold0.9_beta0.5": 0.310999441652708,
+    "leaky_threshold0.5_beta0.9": 0.4159687325516471,
+    "leaky_threshold0.5_beta0.7": 0.31072026800670016,
+    "leaky_threshold0.5_beta0.5": 0.32077051926298156,
+    "leaky_threshold0.25_beta0.9": 0.4503070910106086,
+    "leaky_threshold0.25_beta0.7": 0.34477945281965383,
+    "leaky_threshold0.25_beta0.5": 0.29034059184812955,
+    "synaptic_alpha0.9_beta0.9_threshold0.9": 0.38386376326074817,
+    "synaptic_alpha0.9_beta0.7_threshold0.9": 0.4112227805695142,
+    "synaptic_alpha0.9_beta0.5_threshold0.9": 0.4620323841429369,
+    "synaptic_alpha0.9_beta0.9_threshold0.5": 0.28224455611390287,
+    "synaptic_alpha0.9_beta0.7_threshold0.5": 0.34701284198771637,
+    "synaptic_alpha0.9_beta0.5_threshold0.5": 0.4332774986041318,
+    "synaptic_alpha0.9_beta0.9_threshold0.25": 0.23394751535455052,
+    "synaptic_alpha0.9_beta0.7_threshold0.25": 0.4288107202680067,
+    "synaptic_alpha0.9_beta0.5_threshold0.25": 0.48101619207146845
+  },
+  "best": {
+    "leaky": {
+      "beta": 0.9,
+      "threshold": 0.25,
+      "accuracy": 0.4503070910106086
+    },
+    "synaptic": {
+      "alpha": 0.9,
+      "beta": 0.5,
+      "threshold": 0.25,
+      "accuracy": 0.48101619207146845
+    }
+  }
+}

@@ -1,0 +1,738 @@
+Job 3325060 starting on v330-012.ls6.tacc.utexas.edu at Tue Jul 28 16:54:19 CDT 2026
+1/4: hyperparameter sweep -> results_gesture_snn_comparison_3325060/hparam_sweep/
+device: cuda
+Loading data...
+
+[leaky threshold=0.9 beta=0.9] training...
+  epoch   1/30 -> loss=2.0853
+  epoch   2/30 -> loss=2.0793
+  epoch   3/30 -> loss=2.0794
+  epoch   4/30 -> loss=2.0787
+  epoch   5/30 -> loss=2.0787
+  epoch   6/30 -> loss=2.0798
+  epoch   7/30 -> loss=2.0770
+  epoch   8/30 -> loss=2.0778
+  epoch   9/30 -> loss=2.0735
+  epoch  10/30 -> loss=2.0691
+  epoch  11/30 -> loss=2.0666
+  epoch  12/30 -> loss=2.0627
+  epoch  13/30 -> loss=2.0598
+  epoch  14/30 -> loss=2.0556
+  epoch  15/30 -> loss=2.0540
+  epoch  16/30 -> loss=2.0496
+  epoch  17/30 -> loss=2.0483
+  epoch  18/30 -> loss=2.0458
+  epoch  19/30 -> loss=2.0431
+  epoch  20/30 -> loss=2.0417
+  epoch  21/30 -> loss=2.0399
+  epoch  22/30 -> loss=2.0376
+  epoch  23/30 -> loss=2.0363
+  epoch  24/30 -> loss=2.0354
+  epoch  25/30 -> loss=2.0335
+  epoch  26/30 -> loss=2.0314
+  epoch  27/30 -> loss=2.0297
+  epoch  28/30 -> loss=2.0288
+  epoch  29/30 -> loss=2.0276
+  epoch  30/30 -> loss=2.0267
+[leaky threshold=0.9 beta=0.9] -> acc=0.2976
+
+[leaky threshold=0.9 beta=0.7] training...
+  epoch   1/30 -> loss=2.0795
+  epoch   2/30 -> loss=2.0791
+  epoch   3/30 -> loss=2.0776
+  epoch   4/30 -> loss=2.0756
+  epoch   5/30 -> loss=2.0747
+  epoch   6/30 -> loss=2.0746
+  epoch   7/30 -> loss=2.0711
+  epoch   8/30 -> loss=2.0696
+  epoch   9/30 -> loss=2.0705
+  epoch  10/30 -> loss=2.0700
+  epoch  11/30 -> loss=2.0688
+  epoch  12/30 -> loss=2.0671
+  epoch  13/30 -> loss=2.0647
+  epoch  14/30 -> loss=2.0617
+  epoch  15/30 -> loss=2.0604
+  epoch  16/30 -> loss=2.0584
+  epoch  17/30 -> loss=2.0580
+  epoch  18/30 -> loss=2.0569
+  epoch  19/30 -> loss=2.0553
+  epoch  20/30 -> loss=2.0548
+  epoch  21/30 -> loss=2.0554
+  epoch  22/30 -> loss=2.0536
+  epoch  23/30 -> loss=2.0524
+  epoch  24/30 -> loss=2.0525
+  epoch  25/30 -> loss=2.0506
+  epoch  26/30 -> loss=2.0502
+  epoch  27/30 -> loss=2.0494
+  epoch  28/30 -> loss=2.0484
+  epoch  29/30 -> loss=2.0475
+  epoch  30/30 -> loss=2.0474
+[leaky threshold=0.9 beta=0.7] -> acc=0.3096
+
+[leaky threshold=0.9 beta=0.5] training...
+  epoch   1/30 -> loss=2.0794
+  epoch   2/30 -> loss=2.0793
+  epoch   3/30 -> loss=2.0782
+  epoch   4/30 -> loss=2.0770
+  epoch   5/30 -> loss=2.0759
+  epoch   6/30 -> loss=2.0742
+  epoch   7/30 -> loss=2.0712
+  epoch   8/30 -> loss=2.0689
+  epoch   9/30 -> loss=2.0655
+  epoch  10/30 -> loss=2.0611
+  epoch  11/30 -> loss=2.0602
+  epoch  12/30 -> loss=2.0593
+  epoch  13/30 -> loss=2.0583
+  epoch  14/30 -> loss=2.0551
+  epoch  15/30 -> loss=2.0537
+  epoch  16/30 -> loss=2.0518
+  epoch  17/30 -> loss=2.0518
+  epoch  18/30 -> loss=2.0518
+  epoch  19/30 -> loss=2.0514
+  epoch  20/30 -> loss=2.0498
+  epoch  21/30 -> loss=2.0500
+  epoch  22/30 -> loss=2.0502
+  epoch  23/30 -> loss=2.0499
+  epoch  24/30 -> loss=2.0506
+  epoch  25/30 -> loss=2.0505
+  epoch  26/30 -> loss=2.0496
+  epoch  27/30 -> loss=2.0493
+  epoch  28/30 -> loss=2.0501
+  epoch  29/30 -> loss=2.0500
+  epoch  30/30 -> loss=2.0504
+[leaky threshold=0.9 beta=0.5] -> acc=0.3110
+
+[leaky threshold=0.5 beta=0.9] training...
+  epoch   1/30 -> loss=2.1045
+  epoch   2/30 -> loss=2.0805
+  epoch   3/30 -> loss=2.0784
+  epoch   4/30 -> loss=2.0764
+  epoch   5/30 -> loss=2.0752
+  epoch   6/30 -> loss=2.0809
+  epoch   7/30 -> loss=2.0736
+  epoch   8/30 -> loss=2.0724
+  epoch   9/30 -> loss=2.0638
+  epoch  10/30 -> loss=2.0621
+  epoch  11/30 -> loss=2.0599
+  epoch  12/30 -> loss=2.0564
+  epoch  13/30 -> loss=2.0507
+  epoch  14/30 -> loss=2.0484
+  epoch  15/30 -> loss=2.0449
+  epoch  16/30 -> loss=2.0393
+  epoch  17/30 -> loss=2.0378
+  epoch  18/30 -> loss=2.0322
+  epoch  19/30 -> loss=2.0271
+  epoch  20/30 -> loss=2.0240
+  epoch  21/30 -> loss=2.0211
+  epoch  22/30 -> loss=2.0152
+  epoch  23/30 -> loss=2.0120
+  epoch  24/30 -> loss=2.0103
+  epoch  25/30 -> loss=2.0036
+  epoch  26/30 -> loss=1.9998
+  epoch  27/30 -> loss=1.9969
+  epoch  28/30 -> loss=1.9927
+  epoch  29/30 -> loss=1.9900
+  epoch  30/30 -> loss=1.9888
+[leaky threshold=0.5 beta=0.9] -> acc=0.4160
+
+[leaky threshold=0.5 beta=0.7] training...
+  epoch   1/30 -> loss=2.0895
+  epoch   2/30 -> loss=2.0788
+  epoch   3/30 -> loss=2.0783
+  epoch   4/30 -> loss=2.0749
+  epoch   5/30 -> loss=2.0711
+  epoch   6/30 -> loss=2.0747
+  epoch   7/30 -> loss=2.0716
+  epoch   8/30 -> loss=2.0735
+  epoch   9/30 -> loss=2.0688
+  epoch  10/30 -> loss=2.0646
+  epoch  11/30 -> loss=2.0644
+  epoch  12/30 -> loss=2.0647
+  epoch  13/30 -> loss=2.0614
+  epoch  14/30 -> loss=2.0608
+  epoch  15/30 -> loss=2.0592
+  epoch  16/30 -> loss=2.0577
+  epoch  17/30 -> loss=2.0581
+  epoch  18/30 -> loss=2.0567
+  epoch  19/30 -> loss=2.0542
+  epoch  20/30 -> loss=2.0543
+  epoch  21/30 -> loss=2.0533
+  epoch  22/30 -> loss=2.0515
+  epoch  23/30 -> loss=2.0504
+  epoch  24/30 -> loss=2.0520
+  epoch  25/30 -> loss=2.0501
+  epoch  26/30 -> loss=2.0491
+  epoch  27/30 -> loss=2.0483
+  epoch  28/30 -> loss=2.0475
+  epoch  29/30 -> loss=2.0477
+  epoch  30/30 -> loss=2.0473
+[leaky threshold=0.5 beta=0.7] -> acc=0.3107
+
+[leaky threshold=0.5 beta=0.5] training...
+  epoch   1/30 -> loss=2.0831
+  epoch   2/30 -> loss=2.0776
+  epoch   3/30 -> loss=2.0749
+  epoch   4/30 -> loss=2.0736
+  epoch   5/30 -> loss=2.0726
+  epoch   6/30 -> loss=2.0685
+  epoch   7/30 -> loss=2.0677
+  epoch   8/30 -> loss=2.0714
+  epoch   9/30 -> loss=2.0683
+  epoch  10/30 -> loss=2.0668
+  epoch  11/30 -> loss=2.0651
+  epoch  12/30 -> loss=2.0635
+  epoch  13/30 -> loss=2.0643
+  epoch  14/30 -> loss=2.0605
+  epoch  15/30 -> loss=2.0603
+  epoch  16/30 -> loss=2.0589
+  epoch  17/30 -> loss=2.0606
+  epoch  18/30 -> loss=2.0601
+  epoch  19/30 -> loss=2.0589
+  epoch  20/30 -> loss=2.0581
+  epoch  21/30 -> loss=2.0586
+  epoch  22/30 -> loss=2.0564
+  epoch  23/30 -> loss=2.0561
+  epoch  24/30 -> loss=2.0595
+  epoch  25/30 -> loss=2.0580
+  epoch  26/30 -> loss=2.0561
+  epoch  27/30 -> loss=2.0569
+  epoch  28/30 -> loss=2.0566
+  epoch  29/30 -> loss=2.0565
+  epoch  30/30 -> loss=2.0574
+[leaky threshold=0.5 beta=0.5] -> acc=0.3208
+
+[leaky threshold=0.25 beta=0.9] training...
+  epoch   1/30 -> loss=2.1509
+  epoch   2/30 -> loss=2.0811
+  epoch   3/30 -> loss=2.0871
+  epoch   4/30 -> loss=2.0794
+  epoch   5/30 -> loss=2.0791
+  epoch   6/30 -> loss=2.0782
+  epoch   7/30 -> loss=2.0656
+  epoch   8/30 -> loss=2.0588
+  epoch   9/30 -> loss=2.0460
+  epoch  10/30 -> loss=2.0359
+  epoch  11/30 -> loss=2.0240
+  epoch  12/30 -> loss=2.0154
+  epoch  13/30 -> loss=2.0044
+  epoch  14/30 -> loss=2.0016
+  epoch  15/30 -> loss=1.9966
+  epoch  16/30 -> loss=1.9877
+  epoch  17/30 -> loss=1.9833
+  epoch  18/30 -> loss=1.9841
+  epoch  19/30 -> loss=1.9769
+  epoch  20/30 -> loss=1.9745
+  epoch  21/30 -> loss=1.9747
+  epoch  22/30 -> loss=1.9685
+  epoch  23/30 -> loss=1.9680
+  epoch  24/30 -> loss=1.9661
+  epoch  25/30 -> loss=1.9644
+  epoch  26/30 -> loss=1.9611
+  epoch  27/30 -> loss=1.9579
+  epoch  28/30 -> loss=1.9554
+  epoch  29/30 -> loss=1.9542
+  epoch  30/30 -> loss=1.9580
+[leaky threshold=0.25 beta=0.9] -> acc=0.4503
+
+[leaky threshold=0.25 beta=0.7] training...
+  epoch   1/30 -> loss=2.1324
+  epoch   2/30 -> loss=2.0807
+  epoch   3/30 -> loss=2.0778
+  epoch   4/30 -> loss=2.0788
+  epoch   5/30 -> loss=2.0774
+  epoch   6/30 -> loss=2.0785
+  epoch   7/30 -> loss=2.0747
+  epoch   8/30 -> loss=2.0765
+  epoch   9/30 -> loss=2.0724
+  epoch  10/30 -> loss=2.0713
+  epoch  11/30 -> loss=2.0690
+  epoch  12/30 -> loss=2.0684
+  epoch  13/30 -> loss=2.0633
+  epoch  14/30 -> loss=2.0639
+  epoch  15/30 -> loss=2.0620
+  epoch  16/30 -> loss=2.0583
+  epoch  17/30 -> loss=2.0553
+  epoch  18/30 -> loss=2.0544
+  epoch  19/30 -> loss=2.0470
+  epoch  20/30 -> loss=2.0472
+  epoch  21/30 -> loss=2.0445
+  epoch  22/30 -> loss=2.0389
+  epoch  23/30 -> loss=2.0356
+  epoch  24/30 -> loss=2.0361
+  epoch  25/30 -> loss=2.0289
+  epoch  26/30 -> loss=2.0272
+  epoch  27/30 -> loss=2.0263
+  epoch  28/30 -> loss=2.0232
+  epoch  29/30 -> loss=2.0200
+  epoch  30/30 -> loss=2.0235
+[leaky threshold=0.25 beta=0.7] -> acc=0.3448
+
+[leaky threshold=0.25 beta=0.5] training...
+  epoch   1/30 -> loss=2.1189
+  epoch   2/30 -> loss=2.0826
+  epoch   3/30 -> loss=2.0800
+  epoch   4/30 -> loss=2.0755
+  epoch   5/30 -> loss=2.0790
+  epoch   6/30 -> loss=2.0811
+  epoch   7/30 -> loss=2.0760
+  epoch   8/30 -> loss=2.0776
+  epoch   9/30 -> loss=2.0746
+  epoch  10/30 -> loss=2.0758
+  epoch  11/30 -> loss=2.0783
+  epoch  12/30 -> loss=2.0793
+  epoch  13/30 -> loss=2.0736
+  epoch  14/30 -> loss=2.0760
+  epoch  15/30 -> loss=2.0748
+  epoch  16/30 -> loss=2.0740
+  epoch  17/30 -> loss=2.0732
+  epoch  18/30 -> loss=2.0725
+  epoch  19/30 -> loss=2.0690
+  epoch  20/30 -> loss=2.0708
+  epoch  21/30 -> loss=2.0676
+  epoch  22/30 -> loss=2.0669
+  epoch  23/30 -> loss=2.0656
+  epoch  24/30 -> loss=2.0692
+  epoch  25/30 -> loss=2.0637
+  epoch  26/30 -> loss=2.0628
+  epoch  27/30 -> loss=2.0639
+  epoch  28/30 -> loss=2.0625
+  epoch  29/30 -> loss=2.0602
+  epoch  30/30 -> loss=2.0635
+[leaky threshold=0.25 beta=0.5] -> acc=0.2903
+
+[synaptic alpha=0.9 beta=0.9 threshold=0.9] training...
+  epoch   1/30 -> loss=2.1871
+  epoch   2/30 -> loss=2.0993
+  epoch   3/30 -> loss=2.0758
+  epoch   4/30 -> loss=2.0745
+  epoch   5/30 -> loss=2.0732
+  epoch   6/30 -> loss=2.0744
+  epoch   7/30 -> loss=2.0725
+  epoch   8/30 -> loss=2.0730
+  epoch   9/30 -> loss=2.0725
+  epoch  10/30 -> loss=2.0573
+  epoch  11/30 -> loss=2.0495
+  epoch  12/30 -> loss=2.0474
+  epoch  13/30 -> loss=2.0514
+  epoch  14/30 -> loss=2.0401
+  epoch  15/30 -> loss=2.0406
+  epoch  16/30 -> loss=2.0344
+  epoch  17/30 -> loss=2.0289
+  epoch  18/30 -> loss=2.0331
+  epoch  19/30 -> loss=2.0248
+  epoch  20/30 -> loss=2.0202
+  epoch  21/30 -> loss=2.0168
+  epoch  22/30 -> loss=2.0115
+  epoch  23/30 -> loss=2.0065
+  epoch  24/30 -> loss=1.9977
+  epoch  25/30 -> loss=2.0008
+  epoch  26/30 -> loss=1.9882
+  epoch  27/30 -> loss=1.9769
+  epoch  28/30 -> loss=1.9779
+  epoch  29/30 -> loss=1.9808
+  epoch  30/30 -> loss=1.9605
+[synaptic alpha=0.9 beta=0.9 threshold=0.9] -> acc=0.3839
+
+[synaptic alpha=0.9 beta=0.7 threshold=0.9] training...
+  epoch   1/30 -> loss=2.1564
+  epoch   2/30 -> loss=2.0741
+  epoch   3/30 -> loss=2.0625
+  epoch   4/30 -> loss=2.0556
+  epoch   5/30 -> loss=2.0396
+  epoch   6/30 -> loss=2.0257
+  epoch   7/30 -> loss=2.0349
+  epoch   8/30 -> loss=2.0079
+  epoch   9/30 -> loss=1.9970
+  epoch  10/30 -> loss=1.9926
+  epoch  11/30 -> loss=1.9829
+  epoch  12/30 -> loss=1.9839
+  epoch  13/30 -> loss=1.9671
+  epoch  14/30 -> loss=1.9614
+  epoch  15/30 -> loss=1.9637
+  epoch  16/30 -> loss=1.9472
+  epoch  17/30 -> loss=1.9372
+  epoch  18/30 -> loss=1.9399
+  epoch  19/30 -> loss=1.9251
+  epoch  20/30 -> loss=1.9213
+  epoch  21/30 -> loss=1.9128
+  epoch  22/30 -> loss=1.9125
+  epoch  23/30 -> loss=1.9061
+  epoch  24/30 -> loss=1.9039
+  epoch  25/30 -> loss=1.9098
+  epoch  26/30 -> loss=1.9068
+  epoch  27/30 -> loss=1.9070
+  epoch  28/30 -> loss=1.8988
+  epoch  29/30 -> loss=1.8985
+  epoch  30/30 -> loss=1.9073
+[synaptic alpha=0.9 beta=0.7 threshold=0.9] -> acc=0.4112
+
+[synaptic alpha=0.9 beta=0.5 threshold=0.9] training...
+  epoch   1/30 -> loss=2.1688
+  epoch   2/30 -> loss=2.0776
+  epoch   3/30 -> loss=2.0719
+  epoch   4/30 -> loss=2.0583
+  epoch   5/30 -> loss=2.0410
+  epoch   6/30 -> loss=2.0310
+  epoch   7/30 -> loss=2.0290
+  epoch   8/30 -> loss=2.0089
+  epoch   9/30 -> loss=1.9893
+  epoch  10/30 -> loss=1.9875
+  epoch  11/30 -> loss=1.9699
+  epoch  12/30 -> loss=1.9574
+  epoch  13/30 -> loss=1.9468
+  epoch  14/30 -> loss=1.9415
+  epoch  15/30 -> loss=1.9432
+  epoch  16/30 -> loss=1.9345
+  epoch  17/30 -> loss=1.9283
+  epoch  18/30 -> loss=1.9386
+  epoch  19/30 -> loss=1.9275
+  epoch  20/30 -> loss=1.9250
+  epoch  21/30 -> loss=1.9214
+  epoch  22/30 -> loss=1.9143
+  epoch  23/30 -> loss=1.9111
+  epoch  24/30 -> loss=1.9125
+  epoch  25/30 -> loss=1.9180
+  epoch  26/30 -> loss=1.9090
+  epoch  27/30 -> loss=1.9107
+  epoch  28/30 -> loss=1.9044
+  epoch  29/30 -> loss=1.9024
+  epoch  30/30 -> loss=1.9097
+[synaptic alpha=0.9 beta=0.5 threshold=0.9] -> acc=0.4620
+
+[synaptic alpha=0.9 beta=0.9 threshold=0.5] training...
+  epoch   1/30 -> loss=2.1773
+  epoch   2/30 -> loss=2.0762
+  epoch   3/30 -> loss=2.0683
+  epoch   4/30 -> loss=2.0643
+  epoch   5/30 -> loss=2.0538
+  epoch   6/30 -> loss=2.0486
+  epoch   7/30 -> loss=2.0447
+  epoch   8/30 -> loss=2.0427
+  epoch   9/30 -> loss=2.0426
+  epoch  10/30 -> loss=2.0354
+  epoch  11/30 -> loss=2.0327
+  epoch  12/30 -> loss=2.0304
+  epoch  13/30 -> loss=2.0301
+  epoch  14/30 -> loss=2.0292
+  epoch  15/30 -> loss=2.0269
+  epoch  16/30 -> loss=2.0280
+  epoch  17/30 -> loss=2.0258
+  epoch  18/30 -> loss=2.0315
+  epoch  19/30 -> loss=2.0258
+  epoch  20/30 -> loss=2.0245
+  epoch  21/30 -> loss=2.0227
+  epoch  22/30 -> loss=2.0201
+  epoch  23/30 -> loss=2.0203
+  epoch  24/30 -> loss=2.0163
+  epoch  25/30 -> loss=2.0166
+  epoch  26/30 -> loss=2.0154
+  epoch  27/30 -> loss=2.0143
+  epoch  28/30 -> loss=2.0116
+  epoch  29/30 -> loss=2.0111
+  epoch  30/30 -> loss=2.0071
+[synaptic alpha=0.9 beta=0.9 threshold=0.5] -> acc=0.2822
+
+[synaptic alpha=0.9 beta=0.7 threshold=0.5] training...
+  epoch   1/30 -> loss=2.1437
+  epoch   2/30 -> loss=2.0694
+  epoch   3/30 -> loss=2.0663
+  epoch   4/30 -> loss=2.0616
+  epoch   5/30 -> loss=2.0489
+  epoch   6/30 -> loss=2.0509
+  epoch   7/30 -> loss=2.0440
+  epoch   8/30 -> loss=2.0344
+  epoch   9/30 -> loss=2.0311
+  epoch  10/30 -> loss=2.0320
+  epoch  11/30 -> loss=2.0294
+  epoch  12/30 -> loss=2.0261
+  epoch  13/30 -> loss=2.0247
+  epoch  14/30 -> loss=2.0186
+  epoch  15/30 -> loss=2.0182
+  epoch  16/30 -> loss=1.9985
+  epoch  17/30 -> loss=1.9901
+  epoch  18/30 -> loss=1.9898
+  epoch  19/30 -> loss=1.9891
+  epoch  20/30 -> loss=1.9852
+  epoch  21/30 -> loss=1.9819
+  epoch  22/30 -> loss=1.9788
+  epoch  23/30 -> loss=1.9677
+  epoch  24/30 -> loss=1.9608
+  epoch  25/30 -> loss=1.9569
+  epoch  26/30 -> loss=1.9582
+  epoch  27/30 -> loss=1.9442
+  epoch  28/30 -> loss=1.9279
+  epoch  29/30 -> loss=1.9379
+  epoch  30/30 -> loss=1.9351
+[synaptic alpha=0.9 beta=0.7 threshold=0.5] -> acc=0.3470
+
+[synaptic alpha=0.9 beta=0.5 threshold=0.5] training...
+  epoch   1/30 -> loss=2.1417
+  epoch   2/30 -> loss=2.0679
+  epoch   3/30 -> loss=2.0616
+  epoch   4/30 -> loss=2.0380
+  epoch   5/30 -> loss=2.0331
+  epoch   6/30 -> loss=2.0165
+  epoch   7/30 -> loss=2.0317
+  epoch   8/30 -> loss=2.0078
+  epoch   9/30 -> loss=2.0007
+  epoch  10/30 -> loss=1.9901
+  epoch  11/30 -> loss=1.9724
+  epoch  12/30 -> loss=1.9634
+  epoch  13/30 -> loss=1.9522
+  epoch  14/30 -> loss=1.9390
+  epoch  15/30 -> loss=1.9351
+  epoch  16/30 -> loss=1.9279
+  epoch  17/30 -> loss=1.9269
+  epoch  18/30 -> loss=1.9325
+  epoch  19/30 -> loss=1.9180
+  epoch  20/30 -> loss=1.9157
+  epoch  21/30 -> loss=1.9063
+  epoch  22/30 -> loss=1.9050
+  epoch  23/30 -> loss=1.8968
+  epoch  24/30 -> loss=1.9002
+  epoch  25/30 -> loss=1.9028
+  epoch  26/30 -> loss=1.9034
+  epoch  27/30 -> loss=1.8978
+  epoch  28/30 -> loss=1.8906
+  epoch  29/30 -> loss=1.8892
+  epoch  30/30 -> loss=1.9038
+[synaptic alpha=0.9 beta=0.5 threshold=0.5] -> acc=0.4333
+
+[synaptic alpha=0.9 beta=0.9 threshold=0.25] training...
+  epoch   1/30 -> loss=2.2003
+  epoch   2/30 -> loss=2.0934
+  epoch   3/30 -> loss=2.0740
+  epoch   4/30 -> loss=2.0666
+  epoch   5/30 -> loss=2.0531
+  epoch   6/30 -> loss=2.0470
+  epoch   7/30 -> loss=2.0432
+  epoch   8/30 -> loss=2.0407
+  epoch   9/30 -> loss=2.0361
+  epoch  10/30 -> loss=2.0314
+  epoch  11/30 -> loss=2.0297
+  epoch  12/30 -> loss=2.0297
+  epoch  13/30 -> loss=2.0275
+  epoch  14/30 -> loss=2.0246
+  epoch  15/30 -> loss=2.0203
+  epoch  16/30 -> loss=2.0216
+  epoch  17/30 -> loss=2.0179
+  epoch  18/30 -> loss=2.0227
+  epoch  19/30 -> loss=2.0167
+  epoch  20/30 -> loss=2.0171
+  epoch  21/30 -> loss=2.0118
+  epoch  22/30 -> loss=2.0115
+  epoch  23/30 -> loss=2.0140
+  epoch  24/30 -> loss=2.0108
+  epoch  25/30 -> loss=2.0112
+  epoch  26/30 -> loss=2.0248
+  epoch  27/30 -> loss=2.0221
+  epoch  28/30 -> loss=2.0220
+  epoch  29/30 -> loss=2.0159
+  epoch  30/30 -> loss=2.0147
+[synaptic alpha=0.9 beta=0.9 threshold=0.25] -> acc=0.2339
+
+[synaptic alpha=0.9 beta=0.7 threshold=0.25] training...
+  epoch   1/30 -> loss=2.1524
+  epoch   2/30 -> loss=2.0604
+  epoch   3/30 -> loss=2.0515
+  epoch   4/30 -> loss=2.0342
+  epoch   5/30 -> loss=2.0209
+  epoch   6/30 -> loss=2.0075
+  epoch   7/30 -> loss=2.0269
+  epoch   8/30 -> loss=2.0064
+  epoch   9/30 -> loss=1.9964
+  epoch  10/30 -> loss=1.9952
+  epoch  11/30 -> loss=1.9728
+  epoch  12/30 -> loss=1.9839
+  epoch  13/30 -> loss=1.9609
+  epoch  14/30 -> loss=1.9565
+  epoch  15/30 -> loss=1.9528
+  epoch  16/30 -> loss=1.9443
+  epoch  17/30 -> loss=1.9365
+  epoch  18/30 -> loss=1.9419
+  epoch  19/30 -> loss=1.9332
+  epoch  20/30 -> loss=1.9281
+  epoch  21/30 -> loss=1.9194
+  epoch  22/30 -> loss=1.9122
+  epoch  23/30 -> loss=1.9123
+  epoch  24/30 -> loss=1.9205
+  epoch  25/30 -> loss=1.9218
+  epoch  26/30 -> loss=1.9102
+  epoch  27/30 -> loss=1.8980
+  epoch  28/30 -> loss=1.8852
+  epoch  29/30 -> loss=1.8874
+  epoch  30/30 -> loss=1.9042
+[synaptic alpha=0.9 beta=0.7 threshold=0.25] -> acc=0.4288
+
+[synaptic alpha=0.9 beta=0.5 threshold=0.25] training...
+  epoch   1/30 -> loss=2.1481
+  epoch   2/30 -> loss=2.0621
+  epoch   3/30 -> loss=2.0534
+  epoch   4/30 -> loss=2.0289
+  epoch   5/30 -> loss=2.0205
+  epoch   6/30 -> loss=2.0102
+  epoch   7/30 -> loss=2.0228
+  epoch   8/30 -> loss=2.0099
+  epoch   9/30 -> loss=1.9723
+  epoch  10/30 -> loss=1.9828
+  epoch  11/30 -> loss=1.9680
+  epoch  12/30 -> loss=1.9574
+  epoch  13/30 -> loss=1.9502
+  epoch  14/30 -> loss=1.9427
+  epoch  15/30 -> loss=1.9447
+  epoch  16/30 -> loss=1.9368
+  epoch  17/30 -> loss=1.9243
+  epoch  18/30 -> loss=1.9376
+  epoch  19/30 -> loss=1.9120
+  epoch  20/30 -> loss=1.9138
+  epoch  21/30 -> loss=1.8978
+  epoch  22/30 -> loss=1.8999
+  epoch  23/30 -> loss=1.8978
+  epoch  24/30 -> loss=1.8973
+  epoch  25/30 -> loss=1.8988
+  epoch  26/30 -> loss=1.8913
+  epoch  27/30 -> loss=1.8879
+  epoch  28/30 -> loss=1.8823
+  epoch  29/30 -> loss=1.8802
+  epoch  30/30 -> loss=1.9008
+[synaptic alpha=0.9 beta=0.5 threshold=0.25] -> acc=0.4810
+
+All points done in 7655.8s wall.
+
+Wrote plot + results.json to results_gesture_snn_comparison_3325060/hparam_sweep/
+
+===== SUMMARY =====
+  leaky    threshold=0.9   beta=0.9  accuracy=0.2976
+  leaky    threshold=0.9   beta=0.7  accuracy=0.3096
+  leaky    threshold=0.9   beta=0.5  accuracy=0.3110
+  leaky    threshold=0.5   beta=0.9  accuracy=0.4160
+  leaky    threshold=0.5   beta=0.7  accuracy=0.3107
+  leaky    threshold=0.5   beta=0.5  accuracy=0.3208
+  leaky    threshold=0.25  beta=0.9  accuracy=0.4503
+  leaky    threshold=0.25  beta=0.7  accuracy=0.3448
+  leaky    threshold=0.25  beta=0.5  accuracy=0.2903
+  synaptic alpha=0.9 beta=0.9  threshold=0.9   accuracy=0.3839
+  synaptic alpha=0.9 beta=0.7  threshold=0.9   accuracy=0.4112
+  synaptic alpha=0.9 beta=0.5  threshold=0.9   accuracy=0.4620
+  synaptic alpha=0.9 beta=0.9  threshold=0.5   accuracy=0.2822
+  synaptic alpha=0.9 beta=0.7  threshold=0.5   accuracy=0.3470
+  synaptic alpha=0.9 beta=0.5  threshold=0.5   accuracy=0.4333
+  synaptic alpha=0.9 beta=0.9  threshold=0.25  accuracy=0.2339
+  synaptic alpha=0.9 beta=0.7  threshold=0.25  accuracy=0.4288
+  synaptic alpha=0.9 beta=0.5  threshold=0.25  accuracy=0.4810
+
+Best leaky:    beta=0.9 threshold=0.25 -> 0.4503
+Best synaptic: alpha=0.9 beta=0.5 threshold=0.25 -> 0.4810
+2/4: method comparison -> results_gesture_snn_comparison_3325060/methods/
+device: cuda
+leaky beta=0.9 threshold=0.25, synaptic alpha=0.9 beta=0.5 threshold=0.25
+Loading data...
+
+[rate_leaky] training...
+  epoch   1/30 -> loss=2.1155
+  epoch   2/30 -> loss=2.0772
+  epoch   3/30 -> loss=2.0737
+  epoch   4/30 -> loss=2.0678
+  epoch   5/30 -> loss=2.0581
+  epoch   6/30 -> loss=2.0513
+  epoch   7/30 -> loss=2.0519
+  epoch   8/30 -> loss=2.0391
+  epoch   9/30 -> loss=2.0352
+  epoch  10/30 -> loss=2.0285
+  epoch  11/30 -> loss=2.0281
+  epoch  12/30 -> loss=2.0197
+  epoch  13/30 -> loss=2.0203
+  epoch  14/30 -> loss=2.0213
+  epoch  15/30 -> loss=2.0199
+  epoch  16/30 -> loss=2.0170
+  epoch  17/30 -> loss=2.0173
+  epoch  18/30 -> loss=2.0114
+  epoch  19/30 -> loss=2.0086
+  epoch  20/30 -> loss=2.0113
+  epoch  21/30 -> loss=2.0118
+  epoch  22/30 -> loss=2.0084
+  epoch  23/30 -> loss=2.0121
+  epoch  24/30 -> loss=2.0080
+  epoch  25/30 -> loss=2.0045
+  epoch  26/30 -> loss=2.0040
+  epoch  27/30 -> loss=1.9989
+  epoch  28/30 -> loss=1.9986
+  epoch  29/30 -> loss=2.0019
+  epoch  30/30 -> loss=2.0017
+[rate_leaky] -> acc=0.4101 (train 440.8s, eval 26.9s)
+
+[delta_leaky] training...
+  epoch   1/30 -> loss=2.1509
+  epoch   2/30 -> loss=2.0811
+  epoch   3/30 -> loss=2.0871
+  epoch   4/30 -> loss=2.0794
+  epoch   5/30 -> loss=2.0791
+  epoch   6/30 -> loss=2.0782
+  epoch   7/30 -> loss=2.0656
+  epoch   8/30 -> loss=2.0588
+  epoch   9/30 -> loss=2.0460
+  epoch  10/30 -> loss=2.0359
+  epoch  11/30 -> loss=2.0240
+  epoch  12/30 -> loss=2.0154
+  epoch  13/30 -> loss=2.0044
+  epoch  14/30 -> loss=2.0016
+  epoch  15/30 -> loss=1.9966
+  epoch  16/30 -> loss=1.9877
+  epoch  17/30 -> loss=1.9833
+  epoch  18/30 -> loss=1.9841
+  epoch  19/30 -> loss=1.9769
+  epoch  20/30 -> loss=1.9745
+  epoch  21/30 -> loss=1.9747
+  epoch  22/30 -> loss=1.9685
+  epoch  23/30 -> loss=1.9680
+  epoch  24/30 -> loss=1.9661
+  epoch  25/30 -> loss=1.9644
+  epoch  26/30 -> loss=1.9611
+  epoch  27/30 -> loss=1.9579
+  epoch  28/30 -> loss=1.9554
+  epoch  29/30 -> loss=1.9542
+  epoch  30/30 -> loss=1.9580
+[delta_leaky] -> acc=0.4503 (train 388.9s, eval 25.6s)
+
+[delta_synaptic] training...
+  epoch   1/30 -> loss=2.1481
+  epoch   2/30 -> loss=2.0621
+  epoch   3/30 -> loss=2.0534
+  epoch   4/30 -> loss=2.0289
+  epoch   5/30 -> loss=2.0205
+  epoch   6/30 -> loss=2.0102
+  epoch   7/30 -> loss=2.0228
+  epoch   8/30 -> loss=2.0099
+  epoch   9/30 -> loss=1.9723
+  epoch  10/30 -> loss=1.9828
+  epoch  11/30 -> loss=1.9680
+  epoch  12/30 -> loss=1.9574
+  epoch  13/30 -> loss=1.9502
+  epoch  14/30 -> loss=1.9427
+  epoch  15/30 -> loss=1.9447
+  epoch  16/30 -> loss=1.9368
+  epoch  17/30 -> loss=1.9243
+  epoch  18/30 -> loss=1.9376
+  epoch  19/30 -> loss=1.9120
+  epoch  20/30 -> loss=1.9138
+  epoch  21/30 -> loss=1.8978
+  epoch  22/30 -> loss=1.8999
+  epoch  23/30 -> loss=1.8978
+  epoch  24/30 -> loss=1.8973
+  epoch  25/30 -> loss=1.8988
+  epoch  26/30 -> loss=1.8913
+  epoch  27/30 -> loss=1.8879
+  epoch  28/30 -> loss=1.8823
+  epoch  29/30 -> loss=1.8802
+  epoch  30/30 -> loss=1.9008
+[delta_synaptic] -> acc=0.4810 (train 438.2s, eval 30.2s)
+
+All methods done in 1350.8s wall.
+
+Wrote plot + results.json to results_gesture_snn_comparison_3325060/methods/
+
+===== SUMMARY =====
+  Rate + Rate decoding + Leaky        accuracy=0.4101
+  Delta + Rate decoding + Leaky       accuracy=0.4503
+  Delta + Rate decoding + Synaptic    accuracy=0.4810
+3/4: spike-train visualization -> results_gesture_snn_comparison_3325060/spikes/

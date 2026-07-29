@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/scratch/09424/jiwoooop/hdc-language/scripts/visualize_gesture_snn_spikes.py", line 31, in <module>
+    import snntorch.spikeplot as splt
+  File "/scratch/09424/jiwoooop/snn-env/lib/python3.9/site-packages/snntorch/spikeplot.py", line 2, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
