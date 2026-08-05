@@ -1,0 +1,148 @@
+Job 3341837 starting on v330-024.ls6.tacc.utexas.edu at Wed Aug  5 09:31:47 CDT 2026
+Running temporal-decode + multi-beta comparison -> results_gesture_snn_temporal_multibeta_3341837/
+device: cuda
+Loading data...
+
+[baseline] training (Synaptic, rate decode (known best))...
+  epoch   1/30 -> loss=2.1481
+  epoch   2/30 -> loss=2.0621
+  epoch   3/30 -> loss=2.0534
+  epoch   4/30 -> loss=2.0289
+  epoch   5/30 -> loss=2.0205
+  epoch   6/30 -> loss=2.0102
+  epoch   7/30 -> loss=2.0228
+  epoch   8/30 -> loss=2.0099
+  epoch   9/30 -> loss=1.9723
+  epoch  10/30 -> loss=1.9828
+  epoch  11/30 -> loss=1.9680
+  epoch  12/30 -> loss=1.9574
+  epoch  13/30 -> loss=1.9502
+  epoch  14/30 -> loss=1.9427
+  epoch  15/30 -> loss=1.9447
+  epoch  16/30 -> loss=1.9368
+  epoch  17/30 -> loss=1.9243
+  epoch  18/30 -> loss=1.9376
+  epoch  19/30 -> loss=1.9120
+  epoch  20/30 -> loss=1.9138
+  epoch  21/30 -> loss=1.8978
+  epoch  22/30 -> loss=1.8999
+  epoch  23/30 -> loss=1.8978
+  epoch  24/30 -> loss=1.8973
+  epoch  25/30 -> loss=1.8988
+  epoch  26/30 -> loss=1.8913
+  epoch  27/30 -> loss=1.8879
+  epoch  28/30 -> loss=1.8823
+  epoch  29/30 -> loss=1.8802
+  epoch  30/30 -> loss=1.9008
+[baseline] -> acc=0.4810 (train 478.9s, eval 30.8s)
+
+[temporal] training (Synaptic, temporal decode)...
+  epoch   1/30 -> loss=81.0171
+  epoch   2/30 -> loss=13.7559
+  epoch   3/30 -> loss=1.8430
+  epoch   4/30 -> loss=1.7117
+  epoch   5/30 -> loss=1.6511
+  epoch   6/30 -> loss=1.6157
+  epoch   7/30 -> loss=1.5997
+  epoch   8/30 -> loss=1.5764
+  epoch   9/30 -> loss=1.5486
+  epoch  10/30 -> loss=1.5595
+  epoch  11/30 -> loss=1.5493
+  epoch  12/30 -> loss=1.5488
+  epoch  13/30 -> loss=1.5324
+  epoch  14/30 -> loss=1.5445
+  epoch  15/30 -> loss=1.5559
+  epoch  16/30 -> loss=1.5559
+  epoch  17/30 -> loss=1.5323
+  epoch  18/30 -> loss=1.5304
+  epoch  19/30 -> loss=1.5339
+  epoch  20/30 -> loss=1.5563
+  epoch  21/30 -> loss=1.5265
+  epoch  22/30 -> loss=1.5420
+  epoch  23/30 -> loss=1.5541
+  epoch  24/30 -> loss=1.5422
+  epoch  25/30 -> loss=1.5511
+  epoch  26/30 -> loss=1.5335
+  epoch  27/30 -> loss=1.5447
+  epoch  28/30 -> loss=1.5511
+  epoch  29/30 -> loss=1.5493
+  epoch  30/30 -> loss=1.5409
+[temporal] -> acc=0.3752 (train 434.0s, eval 31.1s)
+
+[multibeta] training (MultiBeta, rate decode)...
+  epoch   1/30 -> loss=2.1287
+  epoch   2/30 -> loss=2.0868
+  epoch   3/30 -> loss=2.0737
+  epoch   4/30 -> loss=2.0598
+  epoch   5/30 -> loss=2.0483
+  epoch   6/30 -> loss=2.0316
+  epoch   7/30 -> loss=2.0124
+  epoch   8/30 -> loss=1.9986
+  epoch   9/30 -> loss=1.9773
+  epoch  10/30 -> loss=1.9677
+  epoch  11/30 -> loss=1.9580
+  epoch  12/30 -> loss=1.9465
+  epoch  13/30 -> loss=1.9391
+  epoch  14/30 -> loss=1.9358
+  epoch  15/30 -> loss=1.9289
+  epoch  16/30 -> loss=1.9251
+  epoch  17/30 -> loss=1.9202
+  epoch  18/30 -> loss=1.9173
+  epoch  19/30 -> loss=1.9152
+  epoch  20/30 -> loss=1.9144
+  epoch  21/30 -> loss=1.9099
+  epoch  22/30 -> loss=1.9080
+  epoch  23/30 -> loss=1.9062
+  epoch  24/30 -> loss=1.9126
+  epoch  25/30 -> loss=1.9022
+  epoch  26/30 -> loss=1.8989
+  epoch  27/30 -> loss=1.8988
+  epoch  28/30 -> loss=1.8993
+  epoch  29/30 -> loss=1.9005
+  epoch  30/30 -> loss=1.8966
+[multibeta] -> acc=0.4581 (train 566.1s, eval 37.6s)
+
+[multibeta_temporal] training (MultiBeta, temporal decode)...
+  epoch   1/30 -> loss=22.0312
+  epoch   2/30 -> loss=1.7116
+  epoch   3/30 -> loss=1.6157
+  epoch   4/30 -> loss=1.5881
+  epoch   5/30 -> loss=1.6044
+  epoch   6/30 -> loss=1.6010
+  epoch   7/30 -> loss=1.6339
+  epoch   8/30 -> loss=1.5947
+  epoch   9/30 -> loss=1.6061
+  epoch  10/30 -> loss=1.5800
+  epoch  11/30 -> loss=1.6416
+  epoch  12/30 -> loss=1.6360
+  epoch  13/30 -> loss=1.6404
+  epoch  14/30 -> loss=1.6941
+  epoch  15/30 -> loss=1.7013
+  epoch  16/30 -> loss=1.7110
+  epoch  17/30 -> loss=1.7199
+  epoch  18/30 -> loss=1.7885
+  epoch  19/30 -> loss=1.7685
+  epoch  20/30 -> loss=1.6435
+  epoch  21/30 -> loss=2.9852
+  epoch  22/30 -> loss=2.9192
+  epoch  23/30 -> loss=2.8117
+  epoch  24/30 -> loss=4.8379
+  epoch  25/30 -> loss=2.5922
+  epoch  26/30 -> loss=18.0150
+  epoch  27/30 -> loss=2.0794
+  epoch  28/30 -> loss=2.0794
+  epoch  29/30 -> loss=2.0794
+  epoch  30/30 -> loss=2.0794
+[multibeta_temporal] -> acc=0.1220 (train 551.0s, eval 38.9s)
+
+All configs done in 2173.8s wall.
+
+Wrote plots + results.json to results_gesture_snn_temporal_multibeta_3341837/
+
+===== SUMMARY =====
+  Synaptic, rate decode (known best)  accuracy=0.4810
+  Synaptic, temporal decode           accuracy=0.3752
+  MultiBeta, rate decode              accuracy=0.4581
+  MultiBeta, temporal decode          accuracy=0.1220
+Job 3341837 finished at Wed Aug  5 10:09:07 CDT 2026
+Results in: /scratch/09424/jiwoooop/hdc-language/results_gesture_snn_temporal_multibeta_3341837/
