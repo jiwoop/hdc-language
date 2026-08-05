@@ -9,9 +9,19 @@
     "param_name": "D",
     "accuracy": 0.8637632607481853
   },
-  "snn": {
-    "param": 128,
-    "param_name": "hidden_size",
-    "accuracy": 0.34226689000558347
+  "rate_leaky": {
+    "param": "-",
+    "param_name": "-",
+    "accuracy": 0.410106085985483
+  },
+  "delta_leaky": {
+    "param": "-",
+    "param_name": "-",
+    "accuracy": 0.4503070910106086
+  },
+  "delta_synaptic": {
+    "param": "-",
+    "param_name": "-",
+    "accuracy": 0.48101619207146845
   }
 }
