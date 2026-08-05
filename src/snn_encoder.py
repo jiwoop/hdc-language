@@ -108,6 +108,44 @@ class SNNGestureClassifierLeaky(nn.Module):
         return torch.stack(spk2_rec, dim=0)
 
 
+class SNNGestureClassifierMultiBeta(nn.Module):
+    """fc1 -> lif1 (fast beta) -> fc2 -> lif2 (slow beta) -> fc3 -> lif3 (output),
+    all snn.Leaky. Gives the network two different membrane-decay timescales
+    instead of a single shared beta: lif1's fast decay tracks short-lived input
+    transients (e.g. delta-coded spikes), lif2's slow decay integrates over a
+    longer window, and lif3 is the 8-class output layer."""
+
+    def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
+                 beta_fast=0.5, beta_slow=0.95, beta_out=DEFAULT_BETA,
+                 threshold=DEFAULT_SPIKE_THRESHOLD):
+        super().__init__()
+        self.fc1 = nn.Linear(n_channels, hidden_size)
+        self.lif1 = snn.Leaky(beta=beta_fast, threshold=threshold, spike_grad=surrogate.atan())
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.lif2 = snn.Leaky(beta=beta_slow, threshold=threshold, spike_grad=surrogate.atan())
+        self.fc3 = nn.Linear(hidden_size, num_classes)
+        self.lif3 = snn.Leaky(beta=beta_out, threshold=threshold, spike_grad=surrogate.atan())
+
+    def forward(self, spk_in):
+        """spk_in: (num_steps, batch, n_channels) -> spk3_rec: (num_steps, batch, num_classes)."""
+        num_steps = spk_in.shape[0]
+        mem1 = self.lif1.init_leaky()
+        mem2 = self.lif2.init_leaky()
+        mem3 = self.lif3.init_leaky()
+
+        spk3_rec = []
+        for step in range(num_steps):
+            cur1 = self.fc1(spk_in[step])
+            spk1, mem1 = self.lif1(cur1, mem1)
+            cur2 = self.fc2(spk1)
+            spk2, mem2 = self.lif2(cur2, mem2)
+            cur3 = self.fc3(spk2)
+            spk3, mem3 = self.lif3(cur3, mem3)
+            spk3_rec.append(spk3)
+
+        return torch.stack(spk3_rec, dim=0)
+
+
 class SNNGestureClassifierSynaptic(nn.Module):
     """fc1 -> lif1 -> fc2 -> lif2 (2nd-order LIF, snn.Synaptic), lif2 = 8 output
     neurons (one per class). Same shape as SNNGestureClassifierLeaky, but each
@@ -139,6 +177,27 @@ class SNNGestureClassifierSynaptic(nn.Module):
         return torch.stack(spk2_rec, dim=0)
 
 
+def _first_spike_time(spk_rec):
+    """spk_rec: (num_steps, batch, num_classes) -> (batch, num_classes) float tensor of
+    each neuron's first spike step index (0-indexed); neurons that never spike get
+    num_steps - 1 (i.e. tied for latest possible, so argmin over classes treats
+    "never fired" as the worst outcome). Matches snntorch.functional.acc.accuracy_temporal's
+    first-spike extraction, exposed here so per-example predictions/margins can be
+    computed alongside SF.ce_temporal_loss/SF.accuracy_temporal."""
+    num_steps = spk_rec.shape[0]
+    device = spk_rec.device
+    step_idx = (torch.arange(1, num_steps + 1, device=device)).view(-1, 1, 1)
+    spk_time = spk_rec * step_idx  # nonzero only at spike steps, value = step index + 1
+
+    first_spike_time = torch.zeros_like(spk_time[0])
+    for step in range(num_steps):
+        first_spike_time += spk_time[step] * (first_spike_time == 0)
+
+    never_spiked = first_spike_time == 0
+    first_spike_time = first_spike_time + never_spiked * num_steps
+    return first_spike_time - 1
+
+
 def _flatten_by_class(by_class):
     """{label: [examples]} -> (examples list, integer-label tensor), label order
     fixed by data.CLASSES ("1".."8" -> 0..7) so class indices match lif2's 8 outputs."""
@@ -153,17 +212,19 @@ def _flatten_by_class(by_class):
 
 def train_snn(train_by_class, encode_fn, model_cls=SNNGestureClassifierLeaky, model_kwargs=None,
               num_epochs=DEFAULT_NUM_EPOCHS, batch_size=DEFAULT_BATCH_SIZE, lr=DEFAULT_LR,
-              device="cpu", seed=42):
-    """Trains a model_cls (SNNGestureClassifierLeaky or SNNGestureClassifierSynaptic)
-    via SF.ce_rate_loss + Adam, encoding each batch with encode_fn (examples -> spk_in).
-    Returns the trained model."""
+              device="cpu", seed=42, loss_fn=None):
+    """Trains a model_cls (SNNGestureClassifierLeaky, SNNGestureClassifierSynaptic, or
+    SNNGestureClassifierMultiBeta) via loss_fn + Adam, encoding each batch with encode_fn
+    (examples -> spk_in). loss_fn defaults to SF.ce_rate_loss() (rate decoding); pass
+    SF.ce_temporal_loss() to train for first-spike-time (latency) decoding instead --
+    pair with evaluate_snn(..., decode="temporal"). Returns the trained model."""
     torch.manual_seed(seed)
     examples, labels = _flatten_by_class(train_by_class)
     labels = labels.to(device)
 
     model = model_cls(data.N_CHANNELS, **(model_kwargs or {})).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    loss_fn = SF.ce_rate_loss()
+    loss_fn = loss_fn if loss_fn is not None else SF.ce_rate_loss()
 
     n = len(examples)
     for epoch in range(num_epochs):
@@ -189,41 +250,83 @@ def train_snn(train_by_class, encode_fn, model_cls=SNNGestureClassifierLeaky, mo
 
 
 def evaluate_snn(model, test_by_class, encode_fn,
-                  batch_size=DEFAULT_BATCH_SIZE, device="cpu", return_per_class=False):
-    """Rate-decoded classification: argmax of each class's summed output-spike count
-    over all timesteps, encoding each batch with encode_fn (examples -> spk_in). Mirrors
-    evaluate_permutation/evaluate_gak_from_kernels's (accuracy[, per_class]) return shape."""
+                  batch_size=DEFAULT_BATCH_SIZE, device="cpu", return_per_class=False,
+                  return_confusion=False, decode="rate"):
+    """Encodes each batch with encode_fn (examples -> spk_in), then decodes model's
+    output spike train spk2_rec (num_steps, batch, num_classes) one of two ways:
+      - decode="rate" (default): argmax of each class's summed output-spike count
+        over all timesteps. Pair with the default SF.ce_rate_loss() in train_snn.
+      - decode="temporal": argmin of each class's first-spike time (via
+        _first_spike_time); a class that never spikes is scored as if it fired on
+        the very last step. Pair with SF.ce_temporal_loss() in train_snn.
+    In both cases a per-class "score" is produced where higher = more preferred, so
+    the rest of the bookkeeping (confusion, margins) is decode-agnostic.
+    Mirrors evaluate_permutation/evaluate_gak_from_kernels's (accuracy[, per_class])
+    return shape.
+
+    return_confusion=True additionally returns:
+      - confusion: dict[true_label][pred_label] -> count, from the same per-example
+        predictions used for per_class_accuracy.
+      - margins: list of (is_correct, margin) per test example, margin = the true
+        class's score minus the top *other* class's score (spike-count difference for
+        rate decoding, negative first-spike-time difference for temporal decoding) --
+        positive margins that are still wrong mean the true class was runner-up; very
+        negative margins mean confidently wrong.
+    """
+    if decode not in ("rate", "temporal"):
+        raise ValueError(f"decode must be 'rate' or 'temporal', got {decode!r}")
     model.eval()
     idx_to_label = {i: label for i, label in enumerate(data.CLASSES)}
+    label_to_idx = {label: i for i, label in idx_to_label.items()}
 
     correct, total = 0, 0
     class_correct = {label: 0 for label in data.CLASSES}
     class_total = {label: 0 for label in data.CLASSES}
+    confusion = {t: {p: 0 for p in data.CLASSES} for t in data.CLASSES}
+    margins = []
 
     with torch.no_grad():
         for label, exs in test_by_class.items():
+            true_idx = label_to_idx[label]
             for start in range(0, len(exs), batch_size):
                 batch_examples = exs[start:start + batch_size]
                 spk_in = encode_fn(batch_examples).to(device)
                 spk2_rec = model(spk_in)
-                spike_counts = spk2_rec.sum(dim=0)  # (batch, num_classes)
-                preds = spike_counts.argmax(dim=1).tolist()
+                if decode == "rate":
+                    scores = spk2_rec.sum(dim=0)  # (batch, num_classes), higher = better
+                else:
+                    scores = -_first_spike_time(spk2_rec)  # earlier spike -> higher score
+                preds = scores.argmax(dim=1).tolist()
 
-                for pred_idx in preds:
-                    is_correct = int(idx_to_label[pred_idx] == label)
+                for row, pred_idx in enumerate(preds):
+                    pred_label = idx_to_label[pred_idx]
+                    is_correct = int(pred_label == label)
                     correct += is_correct
                     total += 1
                     class_correct[label] += is_correct
                     class_total[label] += 1
+                    confusion[label][pred_label] += 1
+
+                    row_scores = scores[row]
+                    true_score = row_scores[true_idx].item()
+                    other_scores = row_scores.clone()
+                    other_scores[true_idx] = float("-inf")
+                    top_other_score = other_scores.max().item()
+                    margins.append((bool(is_correct), true_score - top_other_score))
 
     accuracy = correct / total
     per_class_accuracy = {
         label: (class_correct[label] / class_total[label] if class_total[label] else 0.0)
         for label in data.CLASSES
     }
+
+    result = [accuracy]
     if return_per_class:
-        return accuracy, per_class_accuracy
-    return accuracy
+        result.append(per_class_accuracy)
+    if return_confusion:
+        result.append(confusion)
+        result.append(margins)
+    return tuple(result) if len(result) > 1 else result[0]
 
 
 if __name__ == "__main__":
