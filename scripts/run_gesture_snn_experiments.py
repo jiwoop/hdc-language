@@ -12,14 +12,6 @@ dense-matmul-bound (fc1/fc2 applied every timestep, every epoch) -- the first
 workload in this repo shaped for a GPU. The two HDC encoders stay CPU-only and
 unchanged; nothing here touches them.
 
-Why NOT a combined wall-clock comparison: GPU vs CPU time isn't a fair comparison,
-so this driver (and hdc_gesture_snn.slurm) never compares timing against the HDC
-methods -- only accuracy, which is hardware-independent.
-
-Why no multiprocessing.Pool (unlike the HDC drivers): GPU work doesn't parallelize
-across a process pool the way independent CPU sweep points do -- there is one GPU,
-so sweep points run sequentially, reusing the loaded train/test data across points.
-
 Usage:
     python run_gesture_snn_experiments.py [--outdir DIR] [--quick] [--device cuda|cpu]
 
@@ -45,19 +37,33 @@ import uwave_data as data
 # ---------------------------------------------------------------------------
 # Experiment grid.
 # ---------------------------------------------------------------------------
-# Primary sweep axis for the SNN is hidden_size -- the model-capacity knob
-# analogous to the HDC methods' vector dimension D, though not the same quantity
-# (a hidden layer width vs. a bundled hypervector width), so results are reported
-# on their own plot/axis rather than merged onto accuracy_vs_dimension_gesture.png.
 HIDDEN_SIZES = [16, 32, 64, 128]
 NUM_EPOCHS = 30
 BATCH_SIZE = 32
 
+# Decay rate knobs -- temporal information using different betas
+BETA_DEC_3 = [0.9, 0.7, 0.5]
+BETA_INC_3 = [0.5, 0.7, 0.9]
+BETA_DEC_4 = [0.95, 0.8, 0.65, 0.5]
+BETA_INC_4 = [0.5, 0.65, 0.8, 0.95]
 
-def run_point(hidden_size, train_by_class, test_by_class, device, num_epochs):
+MODEL_CONFIGS = {
+    "MultiBeta3_dec": (se.SNNGestureClassifierMultiBeta3,
+                       {"beta_1": BETA_DEC_3[0], "beta_2": BETA_DEC_3[1], "beta_out": BETA_DEC_3[2]}),
+    "MultiBeta3_inc": (se.SNNGestureClassifierMultiBeta3,
+                       {"beta_1": BETA_INC_3[0], "beta_2": BETA_INC_3[1], "beta_out": BETA_INC_3[2]}),
+    "MultiBeta4_dec": (se.SNNGestureClassifierMultiBeta4,
+                       {"beta_1": BETA_DEC_4[0], "beta_2": BETA_DEC_4[1], "beta_3": BETA_DEC_4[2], "beta_out": BETA_DEC_4[3]}),
+    "MultiBeta4_inc": (se.SNNGestureClassifierMultiBeta4,
+                       {"beta_1": BETA_INC_4[0], "beta_2": BETA_INC_4[1], "beta_3": BETA_INC_4[2], "beta_out": BETA_INC_4[3]}),
+}
+
+
+def run_point(hidden_size, train_by_class, test_by_class, model_cls, beta_kwargs, device, num_epochs):
     t0 = time.time()
     model = se.train_snn(train_by_class, se.encode_rate_spike_trains,
-                          model_kwargs={"hidden_size": hidden_size}, num_epochs=num_epochs,
+                          model_cls,
+                          model_kwargs={"hidden_size": hidden_size, **beta_kwargs}, num_epochs=num_epochs,
                           batch_size=BATCH_SIZE, device=device)
     train_s = time.time() - t0
 
@@ -70,10 +76,12 @@ def run_point(hidden_size, train_by_class, test_by_class, device, num_epochs):
             "accuracy": accuracy, "per_class": per_class, "train_s": train_s, "eval_s": eval_s}
 
 
-def plot_hidden_size(outdir, by_hidden):
-    xs = sorted(by_hidden)
+def plot_hidden_size(outdir, by_model_hidden):
     plt.figure(figsize=(8, 5))
-    plt.plot(xs, [by_hidden[x] * 100 for x in xs], marker='o', label="SNN (snnTorch, rate-coded)")
+    for model_name, by_hidden in by_model_hidden.items():
+        xs = sorted(by_hidden)
+        plt.plot(xs, [by_hidden[x] * 100 for x in xs], marker='o',
+                  label=f"SNN {model_name} (snnTorch, rate-coded)")
     plt.xlabel("Hidden layer size")
     plt.ylabel("Inference accuracy [%]")
     plt.title("UWaveGestureLibrary SNN accuracy vs. hidden layer size")
@@ -104,35 +112,41 @@ def main():
 
     results = []
     wall0 = time.time()
-    for hidden_size in hidden_sizes:
-        print(f"\n[hidden_size={hidden_size}] training...", flush=True)
-        res = run_point(hidden_size, train_by_class, test_by_class, device, num_epochs)
-        results.append(res)
-        print(f"[hidden_size={hidden_size}] -> acc={res['accuracy']:.4f} "
-              f"(train {res['train_s']:.1f}s, eval {res['eval_s']:.1f}s)", flush=True)
+    for model_name, (model_cls, beta_kwargs) in MODEL_CONFIGS.items():
+        for hidden_size in hidden_sizes:
+            print(f"\n[{model_name} hidden_size={hidden_size}] training...", flush=True)
+            res = run_point(hidden_size, train_by_class, test_by_class, model_cls, beta_kwargs, device, num_epochs)
+            res["model"] = model_name
+            results.append(res)
+            print(f"[{model_name} hidden_size={hidden_size}] -> acc={res['accuracy']:.4f} "
+                  f"(train {res['train_s']:.1f}s, eval {res['eval_s']:.1f}s)", flush=True)
 
     wall_s = time.time() - wall0
     print(f"\nAll points done in {wall_s:.1f}s wall.", flush=True)
 
-    by_hidden = {r["hidden_size"]: r["accuracy"] for r in results}
-    per_class_by_hidden = {r["hidden_size"]: r["per_class"] for r in results}
+    by_model_hidden = {model_name: {} for model_name in MODEL_CONFIGS}
+    per_class_by_model_hidden = {model_name: {} for model_name in MODEL_CONFIGS}
+    for r in results:
+        by_model_hidden[r["model"]][r["hidden_size"]] = r["accuracy"]
+        per_class_by_model_hidden[r["model"]][r["hidden_size"]] = r["per_class"]
 
-    plot_hidden_size(args.outdir, by_hidden)
+    plot_hidden_size(args.outdir, by_model_hidden)
 
     summary = {
-        "config": {"hidden_sizes": hidden_sizes, "num_epochs": num_epochs,
+        "config": {"models": list(MODEL_CONFIGS), "hidden_sizes": hidden_sizes, "num_epochs": num_epochs,
                     "batch_size": BATCH_SIZE, "device": device, "quick": args.quick,
                     "wall_seconds": wall_s},
-        "accuracy_by_hidden_size": by_hidden,
-        "per_class_by_hidden_size": per_class_by_hidden,
+        "accuracy_by_model_hidden_size": by_model_hidden,
+        "per_class_by_model_hidden_size": per_class_by_model_hidden,
     }
     with open(os.path.join(args.outdir, "results.json"), "w") as f:
         json.dump(summary, f, indent=2, default=str)
 
     print(f"\nWrote plot + results.json to {args.outdir}/", flush=True)
     print("\n===== SUMMARY =====")
-    for hidden_size in sorted(by_hidden):
-        print(f"  hidden_size={hidden_size:4d}  accuracy={by_hidden[hidden_size]:.4f}")
+    for model_name in MODEL_CONFIGS:
+        for hidden_size in sorted(by_model_hidden[model_name]):
+            print(f"  {model_name} hidden_size={hidden_size:4d}  accuracy={by_model_hidden[model_name][hidden_size]:.4f}")
 
 
 if __name__ == "__main__":
