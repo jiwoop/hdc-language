@@ -158,6 +158,47 @@ class SNNGestureClassifierMultiBeta4(nn.Module):
         return torch.stack(spk4_rec, dim=0)
 
 
+# 2. Synaptic + MultiBeta, 4 FC layers, 3 hidden, 1 output
+class SNNGestureClassifierMultiBeta5(nn.Module):
+    def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
+                 alpha=DEFAULT_ALPHA, 
+                 beta_1, beta_2, beta_3, beta_4, beta_out=DEFAULT_BETA,
+                 threshold=DEFAULT_SPIKE_THRESHOLD):
+        super().__init__()
+        self.fc1 = nn.Linear(n_channels, hidden_size)
+        self.lif1 = snn.Synaptic(alpha=alpha, beta=beta_1, threshold=threshold, spike_grad=surrogate.atan())
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.lif2 = snn.Synaptic(alpha=alpha, beta=beta_2, threshold=threshold, spike_grad=surrogate.atan())
+        self.fc3 = nn.Linear(hidden_size, num_classes)
+        self.lif3 = snn.Synaptic(alpha=alpha, beta=beta_3, threshold=threshold, spike_grad=surrogate.atan())
+        self.fc4 = nn.Linear(num_classes, num_classes)
+        self.lif4 = snn.Synaptic(alpha=alpha, beta=beta_out, threshold=threshold, spike_grad=surrogate.atan())
+
+    def forward(self, spk_in):
+        """spk_in: (num_steps, batch, n_channels) -> spk3_rec: (num_steps, batch, num_classes)."""
+        num_steps = spk_in.shape[0]
+        # Initialize hidden states at t=0
+        syn1, mem1 = self.lif1.init_synaptic()
+        syn2, mem2 = self.lif2.init_synaptic()
+        syn3, mem3 = self.lif3.init_synaptic()
+        syn4, mem4 = self.lif4.init_synaptic()
+
+        # Record the final layer
+        spk4_rec = []
+        for step in range(num_steps):
+            cur1 = self.fc1(spk_in[step])
+            spk1, syn1, mem1 = self.lif1(cur1, syn1, mem1)
+            cur2 = self.fc2(spk1)
+            spk2, syn2, mem2 = self.lif2(cur2, syn2, mem2)
+            cur3 = self.fc3(spk2)
+            spk3, syn3, mem3 = self.lif3(cur3, syn3, mem3)
+            cur4 = self.fc4(spk3)
+            spk4, syn4, mem4 = self.lif4(cur4, syn4, mem4)
+            spk4_rec.append(spk4)
+
+        return torch.stack(spk4_rec, dim=0)
+
+
 def _flatten_by_class(by_class):
     """{label: [examples]} -> (examples list, integer-label tensor), label order
     fixed by data.CLASSES ("1".."8" -> 0..7) so class indices match lif2's 8 outputs."""

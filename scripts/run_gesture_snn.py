@@ -1,19 +1,7 @@
-"""Batch driver for the UWaveGestureLibrary SNN baseline (snnTorch), for TACC's
-gpu-h100 partition.
-
-A third point of comparison alongside run_gesture_experiments.py's two HDC methods
-(permutation baseline, Nystrom+GAK) -- same train/test split (uwave_data.py), same
-accuracy metric, but a genuinely different model class (a trained feedforward SNN,
-not a bundled hypervector). See snn_encoder.py's module docstring for the model/
-encoding details.
-
-Why GPU (unlike hdc_gesture.slurm's CPU-only rationale): the SNN training loop is
-dense-matmul-bound (fc1/fc2 applied every timestep, every epoch) -- the first
-workload in this repo shaped for a GPU. The two HDC encoders stay CPU-only and
-unchanged; nothing here touches them.
+"""Batch driver for the UWaveGestureLibrary SNN baseline (snnTorch).
 
 Usage:
-    python run_gesture_snn_experiments.py [--outdir DIR] [--quick] [--device cuda|cpu]
+    python run_gesture_snn.py [--outdir DIR] [--quick] [--device cuda|cpu]
 
 --quick runs a reduced hidden_size grid with fewer epochs, for a smoke test before
 committing a full run.
