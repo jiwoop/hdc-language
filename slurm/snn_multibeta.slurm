@@ -25,7 +25,7 @@ source /scratch/09424/jiwoooop/snn-env/bin/activate
 OUTDIR="results/results_snn_multibeta_${SLURM_JOB_ID}"
 
 echo "Running multi-beta SNN comparison -> $OUTDIR/"
-python3 scripts/run_gesture_snn_experiments.py --device cuda --outdir "$OUTDIR"
+python3 scripts/run_gesture_snn.py --device cuda --outdir "$OUTDIR"
 
 echo "Job $SLURM_JOB_ID finished at $(date)"
 echo "Results in: $SLURM_SUBMIT_DIR/$OUTDIR/"

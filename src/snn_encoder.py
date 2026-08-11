@@ -81,122 +81,85 @@ def encode_delta_spike_trains(examples, delta_threshold=DEFAULT_DELTA_THRESHOLD)
     return spikegen.delta(_stack_examples(examples), threshold=delta_threshold, off_spike=True)
 
 
+class _MultiBetaSNN(nn.Module):
+    """Feedforward SNN with `num_hidden` hidden snn.Synaptic layers followed by one
+    output snn.Synaptic layer, each hidden layer's width taken from `hidden_sizes`
+    (len == num_hidden) and its beta from `betas` (len == num_hidden + 1, last entry
+    is the output layer's beta). Every fc_i -> hidden_i, then a final fc that maps
+    the last hidden width to num_classes -> output layer. Subclasses just fix
+    num_hidden and expose one beta_i kwarg per layer for backward-compatible configs."""
+
+    def __init__(self, n_channels, hidden_sizes, num_classes, alpha, betas, threshold):
+        super().__init__()
+        assert len(hidden_sizes) == len(betas) - 1, "need one beta per hidden layer plus one for output"
+        widths_in = [n_channels] + list(hidden_sizes)
+        widths_out = list(hidden_sizes) + [num_classes]
+
+        self.fcs = nn.ModuleList([
+            nn.Linear(widths_in[i], widths_out[i]) for i in range(len(widths_out))
+        ])
+        self.lifs = nn.ModuleList([
+            snn.Synaptic(alpha=alpha, beta=betas[i], threshold=threshold, spike_grad=surrogate.atan())
+            for i in range(len(betas))
+        ])
+
+    def forward(self, spk_in):
+        """spk_in: (num_steps, batch, n_channels) -> spk_rec: (num_steps, batch, num_classes)."""
+        num_steps = spk_in.shape[0]
+        states = [lif.init_synaptic() for lif in self.lifs]
+
+        spk_rec = []
+        for step in range(num_steps):
+            spk = spk_in[step]
+            for i, (fc, lif) in enumerate(zip(self.fcs, self.lifs)):
+                cur = fc(spk)
+                spk, syn, mem = lif(cur, *states[i])
+                states[i] = (syn, mem)
+            spk_rec.append(spk)
+
+        return torch.stack(spk_rec, dim=0)
+
+
+def _hidden_sizes_from_scalar(hidden_size, num_hidden):
+    """hidden_size (int, first layer's width) -> list of num_hidden widths, halving
+    each layer (min 1), e.g. hidden_size=512, num_hidden=3 -> [512, 256, 128]."""
+    sizes = [hidden_size]
+    for _ in range(num_hidden - 1):
+        sizes.append(max(1, sizes[-1] // 2))
+    return sizes
+
+
 # 1. Synaptic + MultiBeta, 3 FC layers, 2 hidden, 1 output
-class SNNGestureClassifierMultiBeta3(nn.Module):
+class SNNGestureClassifierMultiBeta3(_MultiBetaSNN):
     def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
-                 alpha=DEFAULT_ALPHA, 
-                 beta_1=0.5, beta_2=0.95, beta_out=DEFAULT_BETA,
+                 alpha=DEFAULT_ALPHA,
+                 beta_1=0.9, beta_2=0.8, beta_out=0.7,
                  threshold=DEFAULT_SPIKE_THRESHOLD):
-        super().__init__()
-        self.fc1 = nn.Linear(n_channels, hidden_size)
-        self.lif1 = snn.Synaptic(alpha=alpha, beta=beta_2, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.lif2 = snn.Synaptic(alpha=alpha, beta=beta_1, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc3 = nn.Linear(hidden_size, num_classes)
-        self.lif3 = snn.Synaptic(alpha=alpha, beta=beta_out, threshold=threshold, spike_grad=surrogate.atan())
-
-    def forward(self, spk_in):
-        """spk_in: (num_steps, batch, n_channels) -> spk3_rec: (num_steps, batch, num_classes)."""
-        num_steps = spk_in.shape[0]
-        # Initialize hidden states at t=0
-        syn1, mem1 = self.lif1.init_synaptic()
-        syn2, mem2 = self.lif2.init_synaptic()
-        syn3, mem3 = self.lif3.init_synaptic()
-
-        # Record the final layer
-        spk3_rec = []
-        for step in range(num_steps):
-            cur1 = self.fc1(spk_in[step])
-            spk1, syn1, mem1 = self.lif1(cur1, syn1, mem1)
-            cur2 = self.fc2(spk1)
-            spk2, syn2, mem2 = self.lif2(cur2, syn2, mem2)
-            cur3 = self.fc3(spk2)
-            spk3, syn3, mem3 = self.lif3(cur3, syn3, mem3)
-            spk3_rec.append(spk3)
-
-        return torch.stack(spk3_rec, dim=0)
+        hidden_sizes = _hidden_sizes_from_scalar(hidden_size, num_hidden=2)
+        super().__init__(n_channels, hidden_sizes, num_classes, alpha,
+                          betas=[beta_1, beta_2, beta_out], threshold=threshold)
 
 
 # 2. Synaptic + MultiBeta, 4 FC layers, 3 hidden, 1 output
-class SNNGestureClassifierMultiBeta4(nn.Module):
+class SNNGestureClassifierMultiBeta4(_MultiBetaSNN):
     def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
-                 alpha=DEFAULT_ALPHA, 
-                 beta_1=0.5, beta_2=0.95, beta_3=0.95, beta_out=DEFAULT_BETA,
+                 alpha=DEFAULT_ALPHA,
+                 beta_1=0.9, beta_2=0.83, beta_3=0.77, beta_out=0.7,
                  threshold=DEFAULT_SPIKE_THRESHOLD):
-        super().__init__()
-        self.fc1 = nn.Linear(n_channels, hidden_size)
-        self.lif1 = snn.Synaptic(alpha=alpha, beta=beta_1, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.lif2 = snn.Synaptic(alpha=alpha, beta=beta_2, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc3 = nn.Linear(hidden_size, num_classes)
-        self.lif3 = snn.Synaptic(alpha=alpha, beta=beta_3, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc4 = nn.Linear(num_classes, num_classes)
-        self.lif4 = snn.Synaptic(alpha=alpha, beta=beta_out, threshold=threshold, spike_grad=surrogate.atan())
-
-    def forward(self, spk_in):
-        """spk_in: (num_steps, batch, n_channels) -> spk3_rec: (num_steps, batch, num_classes)."""
-        num_steps = spk_in.shape[0]
-        # Initialize hidden states at t=0
-        syn1, mem1 = self.lif1.init_synaptic()
-        syn2, mem2 = self.lif2.init_synaptic()
-        syn3, mem3 = self.lif3.init_synaptic()
-        syn4, mem4 = self.lif4.init_synaptic()
-
-        # Record the final layer
-        spk4_rec = []
-        for step in range(num_steps):
-            cur1 = self.fc1(spk_in[step])
-            spk1, syn1, mem1 = self.lif1(cur1, syn1, mem1)
-            cur2 = self.fc2(spk1)
-            spk2, syn2, mem2 = self.lif2(cur2, syn2, mem2)
-            cur3 = self.fc3(spk2)
-            spk3, syn3, mem3 = self.lif3(cur3, syn3, mem3)
-            cur4 = self.fc4(spk3)
-            spk4, syn4, mem4 = self.lif4(cur4, syn4, mem4)
-            spk4_rec.append(spk4)
-
-        return torch.stack(spk4_rec, dim=0)
+        hidden_sizes = _hidden_sizes_from_scalar(hidden_size, num_hidden=3)
+        super().__init__(n_channels, hidden_sizes, num_classes, alpha,
+                          betas=[beta_1, beta_2, beta_3, beta_out], threshold=threshold)
 
 
-# 2. Synaptic + MultiBeta, 4 FC layers, 3 hidden, 1 output
-class SNNGestureClassifierMultiBeta5(nn.Module):
+# 3. Synaptic + MultiBeta, 5 FC layers, 4 hidden, 1 output
+class SNNGestureClassifierMultiBeta5(_MultiBetaSNN):
     def __init__(self, n_channels, hidden_size, num_classes=NUM_CLASSES,
-                 alpha=DEFAULT_ALPHA, 
-                 beta_1, beta_2, beta_3, beta_4, beta_out=DEFAULT_BETA,
+                 alpha=DEFAULT_ALPHA,
+                 beta_1=0.9, beta_2=0.85, beta_3=0.8, beta_4=0.75, beta_out=0.7,
                  threshold=DEFAULT_SPIKE_THRESHOLD):
-        super().__init__()
-        self.fc1 = nn.Linear(n_channels, hidden_size)
-        self.lif1 = snn.Synaptic(alpha=alpha, beta=beta_1, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.lif2 = snn.Synaptic(alpha=alpha, beta=beta_2, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc3 = nn.Linear(hidden_size, num_classes)
-        self.lif3 = snn.Synaptic(alpha=alpha, beta=beta_3, threshold=threshold, spike_grad=surrogate.atan())
-        self.fc4 = nn.Linear(num_classes, num_classes)
-        self.lif4 = snn.Synaptic(alpha=alpha, beta=beta_out, threshold=threshold, spike_grad=surrogate.atan())
-
-    def forward(self, spk_in):
-        """spk_in: (num_steps, batch, n_channels) -> spk3_rec: (num_steps, batch, num_classes)."""
-        num_steps = spk_in.shape[0]
-        # Initialize hidden states at t=0
-        syn1, mem1 = self.lif1.init_synaptic()
-        syn2, mem2 = self.lif2.init_synaptic()
-        syn3, mem3 = self.lif3.init_synaptic()
-        syn4, mem4 = self.lif4.init_synaptic()
-
-        # Record the final layer
-        spk4_rec = []
-        for step in range(num_steps):
-            cur1 = self.fc1(spk_in[step])
-            spk1, syn1, mem1 = self.lif1(cur1, syn1, mem1)
-            cur2 = self.fc2(spk1)
-            spk2, syn2, mem2 = self.lif2(cur2, syn2, mem2)
-            cur3 = self.fc3(spk2)
-            spk3, syn3, mem3 = self.lif3(cur3, syn3, mem3)
-            cur4 = self.fc4(spk3)
-            spk4, syn4, mem4 = self.lif4(cur4, syn4, mem4)
-            spk4_rec.append(spk4)
-
-        return torch.stack(spk4_rec, dim=0)
+        hidden_sizes = _hidden_sizes_from_scalar(hidden_size, num_hidden=4)
+        super().__init__(n_channels, hidden_sizes, num_classes, alpha,
+                          betas=[beta_1, beta_2, beta_3, beta_4, beta_out], threshold=threshold)
 
 
 def _flatten_by_class(by_class):
@@ -253,22 +216,50 @@ def train_snn(train_by_class, encode_fn, model_cls=SNNGestureClassifierMultiBeta
     return model
 
 
+def _first_spike_time(spk_rec):
+    """spk_rec: (num_steps, batch, num_classes) -> (batch, num_classes) float tensor of
+    each neuron's first spike step index (0-indexed); neurons that never spike get
+    num_steps - 1 (i.e. tied for latest possible, so argmin over classes treats
+    "never fired" as the worst outcome). Matches snntorch.functional.acc.accuracy_temporal's
+    first-spike extraction."""
+    num_steps = spk_rec.shape[0]
+    device = spk_rec.device
+    step_idx = (torch.arange(1, num_steps + 1, device=device)).view(-1, 1, 1)
+    spk_time = spk_rec * step_idx  # nonzero only at spike steps, value = step index + 1
+
+    first_spike_time = torch.zeros_like(spk_time[0])
+    for step in range(num_steps):
+        first_spike_time += spk_time[step] * (first_spike_time == 0)
+
+    never_spiked = first_spike_time == 0
+    first_spike_time = first_spike_time + never_spiked * num_steps
+    return first_spike_time - 1
+
+
 def evaluate_snn(model, test_by_class, encode_fn,
                   batch_size=DEFAULT_BATCH_SIZE, device="cpu", return_per_class=False,
-                  return_confusion=False):
+                  return_confusion=False, decode="rate"):
     """Encodes each batch with encode_fn (examples -> spk_in), then decodes model's
-    output spike train spk3_rec (num_steps, batch, num_classes) by rate: argmax of
-    each class's summed output-spike count over all timesteps. Pair with the default
-    SF.ce_rate_loss() in train_snn.
+    output spike train spk_rec (num_steps, batch, num_classes) one of two ways:
+      - decode="rate" (default): argmax of each class's summed output-spike count
+        over all timesteps. Pair with the default SF.ce_rate_loss() in train_snn.
+      - decode="temporal": argmin of each class's first-spike time (via
+        _first_spike_time); a class that never spikes is scored as if it fired on
+        the very last step. Pair with SF.ce_temporal_loss() in train_snn.
+    In both cases a per-class "score" is produced where higher = more preferred, so
+    the rest of the bookkeeping (confusion, margins) is decode-agnostic.
 
     return_confusion=True additionally returns:
       - confusion: dict[true_label][pred_label] -> count, from the same per-example
         predictions used for per_class_accuracy.
       - margins: list of (is_correct, margin) per test example, margin = the true
-        class's score (spike count) minus the top *other* class's score -- positive
-        margins that are still wrong mean the true class was runner-up; very negative
-        margins mean confidently wrong.
+        class's score minus the top *other* class's score (spike-count difference for
+        rate decoding, negative first-spike-time difference for temporal decoding) --
+        positive margins that are still wrong mean the true class was runner-up; very
+        negative margins mean confidently wrong.
     """
+    if decode not in ("rate", "temporal"):
+        raise ValueError(f"decode must be 'rate' or 'temporal', got {decode!r}")
     model.eval()
     idx_to_label = {i: label for i, label in enumerate(data.CLASSES)}
     label_to_idx = {label: i for i, label in idx_to_label.items()}
@@ -285,8 +276,11 @@ def evaluate_snn(model, test_by_class, encode_fn,
             for start in range(0, len(exs), batch_size):
                 batch_examples = exs[start:start + batch_size]
                 spk_in = encode_fn(batch_examples).to(device)
-                spk3_rec = model(spk_in)
-                scores = spk3_rec.sum(dim=0)  # (batch, num_classes), higher = better
+                spk_rec = model(spk_in)
+                if decode == "rate":
+                    scores = spk_rec.sum(dim=0)  # (batch, num_classes), higher = better
+                else:
+                    scores = -_first_spike_time(spk_rec)  # earlier spike -> higher score
                 preds = scores.argmax(dim=1).tolist()
 
                 for row, pred_idx in enumerate(preds):
