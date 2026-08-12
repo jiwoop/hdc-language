@@ -1,0 +1,3 @@
+[submodule "sparch"]
+	path = sparch
+	url = git@github.com:idiap/sparch.git
