@@ -15,12 +15,14 @@ port below. If you're looking for that HDC/snnTorch work, check history before c
 
 ```
 sparch/         git submodule (github.com/idiap/sparch, upstream, unmodified) -- the trained
-                PyTorch LIF SNN codebase. Local scripts (export_weights.py, verify_export.py,
-                slurm/train_lif_shd.slurm) live inside this checkout as untracked files, not
-                part of the submodule's own git history.
+                PyTorch LIF SNN codebase. Local scripts (export_weights.py, verify_export.py)
+                live inside this checkout as untracked files, not part of the submodule's own
+                git history.
 src/            pynn_lif_model.py (builds the PyNN network from exported weights),
                 generate_spinnaker_script.py (assembles the self-contained SpiNNaker batch job
                 script), src/data/ (committed exported weights, e.g. shd_lif_weights.npz)
+slurm/          train_lif_shd.slurm -- TACC batch job for a longer sparch training run (submit
+                from the hdc-language repo root; the script cds into sparch/ itself)
 verification/   tiered correctness checks, run before spending SpiNNaker hardware queue time --
                 see verification/README.md
 notebooks/      spinnaker_lif_shd_deploy.ipynb -- the EBRAINS batch-submission notebook, run on
@@ -29,7 +31,7 @@ env.yml         conda env `hdc-env` -- PyNN and NEST (for local verification) ar
                 pip/conda directly, not tracked here (see verification/README.md)
 ```
 
-`logs/`, `results/`, `scripts/`, and `slurm/` at the repo root are leftover from the earlier
+`slurm/snn_multibeta.slurm`, `logs/`, `results/`, and `scripts/` are leftover from the earlier
 HDC/snnTorch work and are currently unused by anything on this branch.
 
 ---
@@ -77,7 +79,7 @@ cp shd_lif_weights.npz ../src/data/
 ```
 
 A longer 50-epoch training run is available as a TACC batch job:
-`sbatch sparch/slurm/train_lif_shd.slurm` (CPU queue — this training loop has no GPU code,
+`sbatch slurm/train_lif_shd.slurm` (from the `hdc-language` repo root; CPU queue — this training loop has no GPU code,
 ~27s/epoch observed locally).
 
 `export_weights.py` folds each layer's trained `BatchNorm1d` into an effective `(W_eff, b_eff)`
