@@ -27,6 +27,27 @@ cd "$SLURM_SUBMIT_DIR/sparch"
 VENV_DIR="/scratch/09424/jiwoooop/sparch-env"
 source "$VENV_DIR/bin/activate"
 
+# --- Dataset ------------------------------------------------------------
+# SHD (~330MB total) is too large for git -- shd_train.h5 alone (256MB)
+# exceeds GitHub's 100MB hard file-size limit -- so it isn't vendored in
+# the repo/submodule. Download + decompress on first run only; subsequent
+# jobs on the same $SCRATCH reuse the already-extracted files.
+DATA_DIR="shd_dataset"
+mkdir -p "$DATA_DIR"
+
+download_shd() {
+    local name="$1"
+    if [ -f "$DATA_DIR/${name}.h5" ]; then
+        return
+    fi
+    echo "Downloading ${name}.h5.gz (first run only)"
+    curl -fsSL "https://zenkelab.org/datasets/${name}.h5.gz" | gunzip > "$DATA_DIR/${name}.h5.tmp"
+    mv "$DATA_DIR/${name}.h5.tmp" "$DATA_DIR/${name}.h5"
+}
+
+download_shd shd_train
+download_shd shd_test
+
 # --- Run ----------------------------------------------------------------
 EXP_DIR="exp/lif_shd_run_${SLURM_JOB_ID}"
 
