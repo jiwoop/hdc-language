@@ -25,7 +25,7 @@ cd "$SLURM_SUBMIT_DIR/sparch"
 # (torch==1.12.0, numpy==1.22.3, ...) -- distinct from hdc-language's
 # snn-env, which targets a different (snntorch) stack/torch version.
 VENV_DIR="/scratch/09424/jiwoooop/sparch-env"
-    source "$VENV_DIR/bin/activate"
+source "$VENV_DIR/bin/activate"
 
 # --- Run ----------------------------------------------------------------
 EXP_DIR="exp/lif_shd_run_${SLURM_JOB_ID}"
