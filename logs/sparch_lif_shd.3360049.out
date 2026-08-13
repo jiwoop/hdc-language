@@ -1,0 +1,6 @@
+Job 3360049 starting on v320-015.ls6.tacc.utexas.edu at Wed Aug 12 09:39:37 CDT 2026
+Downloading shd_train.h5.gz (first run only)
+Downloading shd_test.h5.gz (first run only)
+Training LIF/SHD for 50 epochs -> exp/lif_shd_run_3360049/
+Job 3360049 finished at Wed Aug 12 10:23:25 CDT 2026
+Checkpoint: /scratch/09424/jiwoooop/hdc-language/sparch/exp/lif_shd_run_3360049/checkpoints/best_model.pth
