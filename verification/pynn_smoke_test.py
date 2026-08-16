@@ -82,13 +82,21 @@ def load_shd_examples(h5_path, n_examples, seed=None):
 def dense_input_from_spikes(times_sec, units, nb_units, nb_steps=100, max_time=1.4):
     """Reproduces sparch's SpikingDataset.__getitem__ binning (np.digitize
     into nb_steps bins over max_time), for feeding the numpy reference
-    module (which expects a dense (time, nb_units) binary array, same as
-    sparch's own dataloader produces)."""
+    module (which expects a dense (time, nb_units) array, same as sparch's
+    own dataloader produces).
+
+    sparch builds this via torch.sparse.FloatTensor(...).to_dense(), which
+    *sums* values at duplicate (time, unit) indices rather than overwriting
+    them -- multiple raw spikes commonly land in the same digitized bin for
+    the same input channel (SHD's spike timing is much finer than the
+    100-step binning), so plain `x[idx] = 1.0` silently clamps those cells
+    to 1 and understates the input current. Use np.add.at to match sparch's
+    accumulate-on-collision semantics exactly."""
     time_bins = np.linspace(0, max_time, num=nb_steps)
     time_idx = np.digitize(times_sec, time_bins)
     x = np.zeros((nb_steps, nb_units), dtype=np.float64)
     valid = time_idx < nb_steps
-    x[time_idx[valid], units[valid]] = 1.0
+    np.add.at(x, (time_idx[valid], units[valid]), 1.0)
     return x
 
 
