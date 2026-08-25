@@ -1,0 +1,27 @@
+Job 3384038 starting on c302-005.ls6.tacc.utexas.edu at Sun Aug 23 04:02:19 CDT 2026
+Running dimension-vs-memory sweep -> results/results_dimension_memory_3384038/
+D=   100 -> peak_rss=61.9 MiB theoretical=3.61 KiB accuracy=0.7140
+D=   200 -> peak_rss=61.7 MiB theoretical=7.23 KiB accuracy=0.8560
+D=   300 -> peak_rss=61.7 MiB theoretical=10.84 KiB accuracy=0.8980
+D=   400 -> peak_rss=62.0 MiB theoretical=14.45 KiB accuracy=0.9300
+D=   500 -> peak_rss=62.2 MiB theoretical=18.07 KiB accuracy=0.9440
+D=   600 -> peak_rss=61.9 MiB theoretical=21.68 KiB accuracy=0.9440
+D=   700 -> peak_rss=62.0 MiB theoretical=25.29 KiB accuracy=0.9330
+D=   800 -> peak_rss=61.9 MiB theoretical=28.91 KiB accuracy=0.9390
+D=   900 -> peak_rss=61.9 MiB theoretical=32.52 KiB accuracy=0.9480
+D=  1000 -> peak_rss=61.6 MiB theoretical=36.13 KiB accuracy=0.9670
+D=  2000 -> peak_rss=61.7 MiB theoretical=72.27 KiB accuracy=0.9870
+D=  3000 -> peak_rss=62.2 MiB theoretical=108.40 KiB accuracy=0.9810
+D=  4000 -> peak_rss=62.1 MiB theoretical=144.53 KiB accuracy=0.9850
+D=  5000 -> peak_rss=62.0 MiB theoretical=180.66 KiB accuracy=0.9830
+D=  6000 -> peak_rss=61.8 MiB theoretical=216.80 KiB accuracy=0.9810
+D=  7000 -> peak_rss=62.0 MiB theoretical=252.93 KiB accuracy=0.9860
+D=  8000 -> peak_rss=62.2 MiB theoretical=289.06 KiB accuracy=0.9830
+D=  9000 -> peak_rss=62.2 MiB theoretical=325.20 KiB accuracy=0.9820
+D= 10000 -> peak_rss=61.9 MiB theoretical=361.33 KiB accuracy=0.9900
+D= 20000 -> peak_rss=61.9 MiB theoretical=722.66 KiB accuracy=0.9910
+D= 50000 -> peak_rss=60.0 MiB theoretical=1806.64 KiB accuracy=0.9890
+Saved plot to results/results_dimension_memory_3384038/memory_vs_dimension.png
+Wrote results/results_dimension_memory_3384038/results_memory_vs_dimension.json
+Job 3384038 finished at Sun Aug 23 05:50:07 CDT 2026
+Results + plot in: /scratch/09424/jiwoooop/hdc-language/results/results_dimension_memory_3384038/

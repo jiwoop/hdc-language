@@ -1,0 +1,111 @@
+Job 3384037 starting on c302-005.ls6.tacc.utexas.edu at Sun Aug 23 03:50:07 CDT 2026
+Node has 1 cores
+Running N=1..5 sweep with 128 workers -> results/results_ngram_low_n_3384037/
+Loading test sentences...
+D=  100 N=1 -> accuracy=0.4328
+D=  200 N=1 -> accuracy=0.6414
+D= 1000 N=1 -> accuracy=0.7459
+D=  300 N=1 -> accuracy=0.6685
+D=  600 N=1 -> accuracy=0.7153
+D=  400 N=1 -> accuracy=0.6833
+D=  500 N=1 -> accuracy=0.7369
+D=  700 N=1 -> accuracy=0.7369
+D=  800 N=1 -> accuracy=0.7318
+D=  900 N=1 -> accuracy=0.7479
+D= 2000 N=1 -> accuracy=0.7760
+D= 3000 N=1 -> accuracy=0.7670
+D= 4000 N=1 -> accuracy=0.7759
+D= 5000 N=1 -> accuracy=0.7702
+D= 6000 N=1 -> accuracy=0.7874
+D= 7000 N=1 -> accuracy=0.7814
+D=10000 N=1 -> accuracy=0.7836
+D= 8000 N=1 -> accuracy=0.7791
+D= 9000 N=1 -> accuracy=0.7856
+D=  100 N=2 -> accuracy=0.7032
+D=  200 N=2 -> accuracy=0.8185
+D=  900 N=2 -> accuracy=0.9282
+D=  500 N=2 -> accuracy=0.9067
+D=  300 N=2 -> accuracy=0.8709
+D=  400 N=2 -> accuracy=0.9022
+D=  600 N=2 -> accuracy=0.9095
+D=  700 N=2 -> accuracy=0.9146
+D=  800 N=2 -> accuracy=0.9209
+D= 1000 N=2 -> accuracy=0.9216
+D= 2000 N=2 -> accuracy=0.9430
+D= 3000 N=2 -> accuracy=0.9562
+D= 4000 N=2 -> accuracy=0.9536
+D= 5000 N=2 -> accuracy=0.9536
+D= 7000 N=2 -> accuracy=0.9563
+D= 6000 N=2 -> accuracy=0.9538
+D= 9000 N=2 -> accuracy=0.9572
+D= 8000 N=2 -> accuracy=0.9568
+D=10000 N=2 -> accuracy=0.9579
+D=  300 N=3 -> accuracy=0.8455
+D=  100 N=3 -> accuracy=0.6305
+D=  200 N=3 -> accuracy=0.7740
+D=  500 N=3 -> accuracy=0.8934
+D=  400 N=3 -> accuracy=0.8858
+D=  900 N=3 -> accuracy=0.9390
+D= 1000 N=3 -> accuracy=0.9449
+D=  600 N=3 -> accuracy=0.9166
+D=  700 N=3 -> accuracy=0.9249
+D=  800 N=3 -> accuracy=0.9257
+D= 2000 N=3 -> accuracy=0.9670
+D= 3000 N=3 -> accuracy=0.9669
+D= 4000 N=3 -> accuracy=0.9754
+D= 5000 N=3 -> accuracy=0.9757
+D= 6000 N=3 -> accuracy=0.9777
+D= 7000 N=3 -> accuracy=0.9788
+D= 8000 N=3 -> accuracy=0.9774
+D= 9000 N=3 -> accuracy=0.9779
+D=10000 N=3 -> accuracy=0.9789
+D=  100 N=4 -> accuracy=0.5001
+D=  200 N=4 -> accuracy=0.6795
+D=  300 N=4 -> accuracy=0.7471
+D=  600 N=4 -> accuracy=0.8543
+D=  400 N=4 -> accuracy=0.7925
+D=  500 N=4 -> accuracy=0.8404
+D=  900 N=4 -> accuracy=0.9048
+D=  800 N=4 -> accuracy=0.8942
+D=  700 N=4 -> accuracy=0.8877
+D= 1000 N=4 -> accuracy=0.9058
+D= 2000 N=4 -> accuracy=0.9545
+D= 3000 N=4 -> accuracy=0.9644
+D= 4000 N=4 -> accuracy=0.9741
+D= 6000 N=4 -> accuracy=0.9766
+D= 5000 N=4 -> accuracy=0.9746
+D= 7000 N=4 -> accuracy=0.9794
+D= 8000 N=4 -> accuracy=0.9804
+D=  100 N=5 -> accuracy=0.3308
+D=  200 N=5 -> accuracy=0.4865
+D= 9000 N=4 -> accuracy=0.9815
+D=  500 N=5 -> accuracy=0.6735
+D=10000 N=4 -> accuracy=0.9824
+D=  400 N=5 -> accuracy=0.6320
+D=  300 N=5 -> accuracy=0.5770
+D=  900 N=5 -> accuracy=0.7772
+D=  800 N=5 -> accuracy=0.7818
+D=  600 N=5 -> accuracy=0.7199
+D=  700 N=5 -> accuracy=0.7514
+D= 1000 N=5 -> accuracy=0.7995
+D= 2000 N=5 -> accuracy=0.8913
+D= 3000 N=5 -> accuracy=0.9211
+D= 4000 N=5 -> accuracy=0.9399
+D= 5000 N=5 -> accuracy=0.9468
+D= 6000 N=5 -> accuracy=0.9554
+D= 7000 N=5 -> accuracy=0.9590
+D= 8000 N=5 -> accuracy=0.9627
+D= 9000 N=5 -> accuracy=0.9628
+D=10000 N=5 -> accuracy=0.9649
+Saved plot to results/results_ngram_low_n_3384037/accuracy_vs_dimension_low_n.png
+Saved plot to results/results_ngram_low_n_3384037/accuracy_vs_n_best.png
+Wrote results/results_ngram_low_n_3384037/results_low_n.json
+
+===== SUMMARY (best accuracy per N) =====
+  N=1: 0.7874
+  N=2: 0.9579
+  N=3: 0.9789
+  N=4: 0.9824
+  N=5: 0.9649
+Job 3384037 finished at Sun Aug 23 04:01:59 CDT 2026
+Results + plots in: /scratch/09424/jiwoooop/hdc-language/results/results_ngram_low_n_3384037/

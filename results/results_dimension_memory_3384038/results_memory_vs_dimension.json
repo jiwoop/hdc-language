@@ -1,0 +1,153 @@
+{
+  "n_gram_size": 3,
+  "language": "eng",
+  "records": [
+    {
+      "dimension": 100,
+      "accuracy": 0.714,
+      "peak_rss_kb": 63372,
+      "theoretical_bytes": 3700,
+      "wall_s": 259.21
+    },
+    {
+      "dimension": 200,
+      "accuracy": 0.856,
+      "peak_rss_kb": 63160,
+      "theoretical_bytes": 7400,
+      "wall_s": 256.06
+    },
+    {
+      "dimension": 300,
+      "accuracy": 0.898,
+      "peak_rss_kb": 63224,
+      "theoretical_bytes": 11100,
+      "wall_s": 255.81
+    },
+    {
+      "dimension": 400,
+      "accuracy": 0.93,
+      "peak_rss_kb": 63444,
+      "theoretical_bytes": 14800,
+      "wall_s": 260.16
+    },
+    {
+      "dimension": 500,
+      "accuracy": 0.944,
+      "peak_rss_kb": 63700,
+      "theoretical_bytes": 18500,
+      "wall_s": 257.91
+    },
+    {
+      "dimension": 600,
+      "accuracy": 0.944,
+      "peak_rss_kb": 63340,
+      "theoretical_bytes": 22200,
+      "wall_s": 265.29
+    },
+    {
+      "dimension": 700,
+      "accuracy": 0.933,
+      "peak_rss_kb": 63452,
+      "theoretical_bytes": 25900,
+      "wall_s": 268.54
+    },
+    {
+      "dimension": 800,
+      "accuracy": 0.939,
+      "peak_rss_kb": 63388,
+      "theoretical_bytes": 29600,
+      "wall_s": 268.96
+    },
+    {
+      "dimension": 900,
+      "accuracy": 0.948,
+      "peak_rss_kb": 63420,
+      "theoretical_bytes": 33300,
+      "wall_s": 267.68
+    },
+    {
+      "dimension": 1000,
+      "accuracy": 0.967,
+      "peak_rss_kb": 63124,
+      "theoretical_bytes": 37000,
+      "wall_s": 266.96
+    },
+    {
+      "dimension": 2000,
+      "accuracy": 0.987,
+      "peak_rss_kb": 63208,
+      "theoretical_bytes": 74000,
+      "wall_s": 283.09
+    },
+    {
+      "dimension": 3000,
+      "accuracy": 0.981,
+      "peak_rss_kb": 63648,
+      "theoretical_bytes": 111000,
+      "wall_s": 287.36
+    },
+    {
+      "dimension": 4000,
+      "accuracy": 0.985,
+      "peak_rss_kb": 63620,
+      "theoretical_bytes": 148000,
+      "wall_s": 299.58
+    },
+    {
+      "dimension": 5000,
+      "accuracy": 0.983,
+      "peak_rss_kb": 63468,
+      "theoretical_bytes": 185000,
+      "wall_s": 301.8
+    },
+    {
+      "dimension": 6000,
+      "accuracy": 0.981,
+      "peak_rss_kb": 63236,
+      "theoretical_bytes": 222000,
+      "wall_s": 312.3
+    },
+    {
+      "dimension": 7000,
+      "accuracy": 0.986,
+      "peak_rss_kb": 63492,
+      "theoretical_bytes": 259000,
+      "wall_s": 321.35
+    },
+    {
+      "dimension": 8000,
+      "accuracy": 0.983,
+      "peak_rss_kb": 63736,
+      "theoretical_bytes": 296000,
+      "wall_s": 333.38
+    },
+    {
+      "dimension": 9000,
+      "accuracy": 0.982,
+      "peak_rss_kb": 63648,
+      "theoretical_bytes": 333000,
+      "wall_s": 325.62
+    },
+    {
+      "dimension": 10000,
+      "accuracy": 0.99,
+      "peak_rss_kb": 63380,
+      "theoretical_bytes": 370000,
+      "wall_s": 343.93
+    },
+    {
+      "dimension": 20000,
+      "accuracy": 0.991,
+      "peak_rss_kb": 63360,
+      "theoretical_bytes": 740000,
+      "wall_s": 405.37
+    },
+    {
+      "dimension": 50000,
+      "accuracy": 0.989,
+      "peak_rss_kb": 61480,
+      "theoretical_bytes": 1850000,
+      "wall_s": 606.0
+    }
+  ]
+}

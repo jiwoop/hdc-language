@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /scratch/09424/jiwoooop/hdc-language diff slurm/train_lif_shd.slurm)"
+    ]
+  }
+}
