@@ -1,0 +1,150 @@
+Job 3384039 starting on c301-004.ls6.tacc.utexas.edu at Sun Aug 23 03:50:13 CDT 2026
+Running label-swap confusion-matrix check -> results/results_gesture_label_swap_3384039/
+device: cuda
+Loading data...
+
+[baseline_original] training (Synaptic, rate decode (known best), original labels)...
+  epoch   1/30 -> loss=2.1481
+  epoch   2/30 -> loss=2.0621
+  epoch   3/30 -> loss=2.0534
+  epoch   4/30 -> loss=2.0289
+  epoch   5/30 -> loss=2.0205
+  epoch   6/30 -> loss=2.0102
+  epoch   7/30 -> loss=2.0228
+  epoch   8/30 -> loss=2.0099
+  epoch   9/30 -> loss=1.9723
+  epoch  10/30 -> loss=1.9828
+  epoch  11/30 -> loss=1.9680
+  epoch  12/30 -> loss=1.9574
+  epoch  13/30 -> loss=1.9502
+  epoch  14/30 -> loss=1.9427
+  epoch  15/30 -> loss=1.9447
+  epoch  16/30 -> loss=1.9368
+  epoch  17/30 -> loss=1.9243
+  epoch  18/30 -> loss=1.9376
+  epoch  19/30 -> loss=1.9120
+  epoch  20/30 -> loss=1.9138
+  epoch  21/30 -> loss=1.8978
+  epoch  22/30 -> loss=1.8999
+  epoch  23/30 -> loss=1.8978
+  epoch  24/30 -> loss=1.8973
+  epoch  25/30 -> loss=1.8988
+  epoch  26/30 -> loss=1.8913
+  epoch  27/30 -> loss=1.8879
+  epoch  28/30 -> loss=1.8823
+  epoch  29/30 -> loss=1.8802
+  epoch  30/30 -> loss=1.9008
+[baseline_original] -> acc=0.4810 (train 421.7s, eval 27.1s)
+
+[baseline_swapped] training (Synaptic, rate decode (known best), swapped labels, 3<->5 swapped)...
+  epoch   1/30 -> loss=2.1525
+  epoch   2/30 -> loss=2.0667
+  epoch   3/30 -> loss=2.0662
+  epoch   4/30 -> loss=2.0530
+  epoch   5/30 -> loss=2.0247
+  epoch   6/30 -> loss=2.0078
+  epoch   7/30 -> loss=1.9968
+  epoch   8/30 -> loss=1.9903
+  epoch   9/30 -> loss=1.9851
+  epoch  10/30 -> loss=1.9736
+  epoch  11/30 -> loss=1.9474
+  epoch  12/30 -> loss=1.9377
+  epoch  13/30 -> loss=1.9312
+  epoch  14/30 -> loss=1.9235
+  epoch  15/30 -> loss=1.9239
+  epoch  16/30 -> loss=1.9137
+  epoch  17/30 -> loss=1.9093
+  epoch  18/30 -> loss=1.9373
+  epoch  19/30 -> loss=1.9122
+  epoch  20/30 -> loss=1.9089
+  epoch  21/30 -> loss=1.9026
+  epoch  22/30 -> loss=1.9018
+  epoch  23/30 -> loss=1.8956
+  epoch  24/30 -> loss=1.8969
+  epoch  25/30 -> loss=1.8977
+  epoch  26/30 -> loss=1.9002
+  epoch  27/30 -> loss=1.8960
+  epoch  28/30 -> loss=1.8906
+  epoch  29/30 -> loss=1.8854
+  epoch  30/30 -> loss=1.8911
+[baseline_swapped] -> acc=0.5310 (train 368.3s, eval 26.4s)
+
+[multibeta_original] training (MultiBeta, rate decode, original labels)...
+  epoch   1/30 -> loss=2.1287
+  epoch   2/30 -> loss=2.0868
+  epoch   3/30 -> loss=2.0737
+  epoch   4/30 -> loss=2.0598
+  epoch   5/30 -> loss=2.0483
+  epoch   6/30 -> loss=2.0316
+  epoch   7/30 -> loss=2.0124
+  epoch   8/30 -> loss=1.9986
+  epoch   9/30 -> loss=1.9773
+  epoch  10/30 -> loss=1.9677
+  epoch  11/30 -> loss=1.9580
+  epoch  12/30 -> loss=1.9465
+  epoch  13/30 -> loss=1.9391
+  epoch  14/30 -> loss=1.9358
+  epoch  15/30 -> loss=1.9289
+  epoch  16/30 -> loss=1.9251
+  epoch  17/30 -> loss=1.9202
+  epoch  18/30 -> loss=1.9173
+  epoch  19/30 -> loss=1.9152
+  epoch  20/30 -> loss=1.9144
+  epoch  21/30 -> loss=1.9099
+  epoch  22/30 -> loss=1.9080
+  epoch  23/30 -> loss=1.9062
+  epoch  24/30 -> loss=1.9126
+  epoch  25/30 -> loss=1.9022
+  epoch  26/30 -> loss=1.8989
+  epoch  27/30 -> loss=1.8988
+  epoch  28/30 -> loss=1.8993
+  epoch  29/30 -> loss=1.9005
+  epoch  30/30 -> loss=1.8966
+[multibeta_original] -> acc=0.4581 (train 473.6s, eval 33.4s)
+
+[multibeta_swapped] training (MultiBeta, rate decode, swapped labels, 1<->6 swapped)...
+  epoch   1/30 -> loss=2.1327
+  epoch   2/30 -> loss=2.0847
+  epoch   3/30 -> loss=2.0759
+  epoch   4/30 -> loss=2.0610
+  epoch   5/30 -> loss=2.0543
+  epoch   6/30 -> loss=2.0310
+  epoch   7/30 -> loss=2.0155
+  epoch   8/30 -> loss=1.9946
+  epoch   9/30 -> loss=1.9770
+  epoch  10/30 -> loss=1.9711
+  epoch  11/30 -> loss=1.9633
+  epoch  12/30 -> loss=1.9524
+  epoch  13/30 -> loss=1.9433
+  epoch  14/30 -> loss=1.9393
+  epoch  15/30 -> loss=1.9285
+  epoch  16/30 -> loss=1.9238
+  epoch  17/30 -> loss=1.9234
+  epoch  18/30 -> loss=1.9159
+  epoch  19/30 -> loss=1.9170
+  epoch  20/30 -> loss=1.9086
+  epoch  21/30 -> loss=1.9113
+  epoch  22/30 -> loss=1.9037
+  epoch  23/30 -> loss=1.9044
+  epoch  24/30 -> loss=1.8992
+  epoch  25/30 -> loss=1.9014
+  epoch  26/30 -> loss=1.8993
+  epoch  27/30 -> loss=1.8969
+  epoch  28/30 -> loss=1.8932
+  epoch  29/30 -> loss=1.8964
+  epoch  30/30 -> loss=1.8905
+[multibeta_swapped] -> acc=0.4874 (train 472.6s, eval 33.4s)
+
+All configs done in 1862.4s wall.
+
+Wrote plots + results.json to results/results_gesture_label_swap_3384039/
+
+===== SUMMARY =====
+  [baseline] accuracy original=0.4810 swapped=0.5310
+    predicted-as-3 count: original=1514 swapped=752
+    predicted-as-5 count: original=213 swapped=325
+  [multibeta] accuracy original=0.4581 swapped=0.4874
+    predicted-as-1 count: original=1391 swapped=157
+    predicted-as-6 count: original=121 swapped=354
+Job 3384039 finished at Sun Aug 23 04:21:29 CDT 2026
+Results in: /scratch/09424/jiwoooop/wt/gesture-snn-hw/results/results_gesture_label_swap_3384039/
